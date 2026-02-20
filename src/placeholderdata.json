@@ -1,0 +1,42 @@
+[
+    {
+        "id": "1",
+        "name": "Sarah Chen",
+        "jobTitle": "Senior Software Engineer",
+        "company": "Google",
+        "linkedinUrl": "https://linkedin.com/in/sarachen",
+        "phone": "415-555-0101",
+        "email": "sarah.chen@email.com"
+    },
+    {
+        "id": "2",
+        "name": "Marcus Johnson",
+        "jobTitle": "Product Manager",
+        "company": "Stripe",
+        "linkedinUrl": "https://linkedin.com/in/marcusjohnson",
+        "email": "marcus.j@email.com"
+    },
+    {
+        "id": "3",
+        "name": "Priya Patel",
+        "jobTitle": "UX Designer",
+        "linkedinUrl": "https://linkedin.com/in/priyapatel",
+        "phone": "628-555-0342"
+    },
+    {
+        "id": "4",
+        "name": "David Kim",
+        "jobTitle": "Data Scientist",
+        "company": "Netflix",
+        "linkedinUrl": "https://linkedin.com/in/davidkim",
+        "phone": "510-555-0278",
+        "email": "d.kim@email.com"
+    },
+    {
+        "id": "5",
+        "name": "Elena Rodriguez",
+        "jobTitle": "Engineering Manager",
+        "company": "Meta",
+        "linkedinUrl": "https://linkedin.com/in/elenarodriguez"
+    }
+]
