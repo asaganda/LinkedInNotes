@@ -10,6 +10,7 @@ const Contact = ({ data }: ContactProps ) => {
         {data.length > 0 ? (
             data.map(contact => (
                 <div key={contact.id}>
+                    <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555"/>
                     <p>{contact.name}</p>
                     <p>{contact.jobTitle}</p>
                 </div>

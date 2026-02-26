@@ -5,5 +5,5 @@ export type Connection = {
     company?: string,
     linkedinUrl: string,
     phone?: string,
-    email?: string
+    email?: string,
 }
