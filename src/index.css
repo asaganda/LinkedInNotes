@@ -9,7 +9,7 @@ nav {
   top: 0;
   left: 0;
   position: fixed;
-  background-color: green;
+  background-color: #0895d8;
   height: 75px;
   width: 100%;
   display: flex;
@@ -24,6 +24,12 @@ nav .nav-title {
 }
 nav .nav-contact {
   padding-right: 1em;
+}
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* connection list */
