@@ -1,23 +1,15 @@
-import { useEffect, useState } from 'react'
-import fakeData from './placeholderdata.json'
+import { useState } from 'react'
 import type { Connection } from './models/connection'
 import Contact from './Contact'
+import { getAllConnections } from './storage/connectionRepo'
 
 const ConnectionList = () => {
-    const [data, setData] = useState<Connection[]>([])
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setData(fakeData)
-        }
-
-        fetchData()
-    })
+    const [connections, setConnections] = useState<Connection[]>(getAllConnections())
 
     return (
         <div className="connection-list">
             <p>Connection List</p>
-            <Contact data={data}/>
+            <Contact connections={connections}/>
         </div>
     )
 }

@@ -127,11 +127,25 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 - React component composition (App → Navigation + ConnectionList → Contact)
 - Props and typing with TypeScript (passing Connection arrays between components)
 - useEffect for data fetching on mount
+    This is used for side effects that don't need to be ready before the first render
 - useState for managing component-level state
+    useState tells React "when this data changes, re-render the component." A plain variable wouldn't trigger a re-render — the screen would be stale even after the data changed in localStorage.
 - Importing and using third-party UI components (shadcn/ui)
 - JSON data loading with fetch in React
 - JSON.parse() expects a string value only as input so we must handle a null (falsy value) before it reaches this point
-
+- React render flow is like a function call chain calling functions top-down
+App() is called
+  → line 10: seeding check runs (synchronous, happens immediately)
+  → line 17: return JSX... which includes <ConnectionList/>
+  → so React calls ConnectionList()
+    → line 7: useState(getAllConnections()) runs (reads localStorage)
+    → line 9: return JSX... which includes <Contact/>
+    → so React calls Contact()
+      → renders the list items to the screen
+During a render, React calls your component functions top-to-bottom like normal JavaScript. Any code in the function body runs immediately, in order, before moving to the next line.
+useEffect is the exception — it queues code to run after the render is fully painted to the screen. Think of it as "do this later."
+That's why seeding had to be in the function body (runs during render, before child components) and not in useEffect (runs after everything is already rendered).
+- 
 ---
 
 ## ❓ Questions to Come Back To
