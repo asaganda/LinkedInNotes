@@ -177,6 +177,31 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 6 — 2026-03-04
+**Ticket worked on:** Ticket 7b — Build ConnectionDetail component using useParams
+**What I built:**
+- `ConnectionDetail.tsx` component that reads `:id` from the URL using `useParams()` hook
+- Early return pattern for when `id` is `undefined` (type narrowing)
+- Calls `getConnectionById(id)` to look up connection from localStorage
+- Conditional rendering: `{connection && <div>...</div>}` to display connection data when found
+- Fallback rendering: `{!connection && <p>...</p>}` to show "Connection not found" when id exists but doesn't match any connection
+- Renders all connection fields: name, jobTitle, company, linkedinUrl, phone, email, avatar
+- Wired into App.tsx route: `<Route path="/connections/:id" element={<ConnectionDetail/>}/>`
+**What I learned:**
+- `useParams()` hook returns an object of URL parameters — destructure with `const { id } = useParams()`
+- `useParams` values are `string | undefined` — TypeScript doesn't know if the param exists at runtime
+- Type narrowing with early return: check for the bad case (`if (id === undefined)`) and return early. After the check, TypeScript knows `id` is a `string` — no casting needed
+- One component can have multiple failure points that need separate guards (no id in URL vs. id doesn't match any data)
+- Conditional rendering with `&&`: left side truthy → render right side. Left side falsy → skip. Flip with `!` for the inverse case.
+- Don't reuse components across different views just because they share the same data model — list cards and detail views have different purposes and layouts
+**Quiz answers:**
+- Q1: Both checks are needed because they guard against different failures. Line 6-8 guards `id` being `undefined` (no param in URL). Lines 24-25 guard `id` existing but not matching any connection in localStorage. Two different failure points, two different checks.
+- Q2: `{connection && <div>...</div>}` renders connection data when connection is truthy. `{!connection && <p>...</p>}` renders a fallback message when connection is falsy. Same `&&` pattern, flipped with `!`.
+**Decisions made:** ConnectionDetail is its own component (not reusing Contact card). Early return pattern for type narrowing.
+**Questions / blockers for next time:** Phase 7 connection detail page complete (basic data display). Next: wire up navigation from connection list to detail page (clicking a connection card), then notes list per connection (Phase 7 continued / Phase 8).
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -246,6 +271,10 @@ That's why seeding had to be in the function body (runs during render, before ch
   - `<Route path="/" element={<Component />} />` — maps a URL pattern to a component
   - `:id` in a path is a dynamic parameter — access it with `useParams()` hook
   - Components outside `<Routes>` always render (Navigation, modals). Components inside `<Route>` only render when the URL matches.
+  - useParams() hook — how to read dynamic URL parameters (:id) from the route. Returns an object you destructure: const { id } = useParams().
+  - Type narrowing with early return — useParams gives string | undefined, but your function expects string. Instead of casting or ignoring it, you check for the bad case first and return early. After that check, TypeScript knows id is a string. This is a pattern you'll use constantly.
+  - Handling multiple failure points — one component can fail in different ways (no id in URL vs. id doesn't match any data). Each needs its own guard. Thinking through "what could go wrong and where" is a core part of building robust components.
+  - Conditional rendering with && — using truthy/falsy checks to show or hide JSX blocks. And flipping it with ! for the inverse case.
 ---
 
 ## ❓ Questions to Come Back To

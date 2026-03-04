@@ -3,6 +3,7 @@ import './App.css'
 import ConnectionList from './ConnectionList'
 import Navigation from './Navigation'
 import AddContactForm from './AddContactForm'
+import ConnectionDetail from './ConnectionDetail'
 import type { Connection } from './models/connection'
 import { getAllConnections } from './storage/connectionRepo'
 import fakeData from './placeholderdata.json'
@@ -22,7 +23,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<ConnectionList connections={connections} setConnections={setConnections}/>}/>
-          <Route path="/connections/:id" element={<p>Connection Detail coming soon</p>}/>
+          <Route path="/connections/:id" element={<ConnectionDetail/>}/>
         </Routes>
             <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
       </main>
