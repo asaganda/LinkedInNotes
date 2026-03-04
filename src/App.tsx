@@ -20,7 +20,7 @@ function App() {
       <Navigation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
       {/* <h1>s</h1> */}
       <main>
-        <ConnectionList connections={connections}/>
+        <ConnectionList connections={connections} setConnections={setConnections}/>
         <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
         {/* ConnectionDetail */}
       </main>

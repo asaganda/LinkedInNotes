@@ -48,10 +48,22 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 - Added shadcn Button component
 - Used it in Navigation for "+ New Contact" button
 
-**Uncommitted work (current state):**
+**Commit 5 — `b599669` — "add a few shadcn components, add claude.md and progress.md files for claude guidance as senior dev and learning, code up localstorage data layer logic for app - placeholder api"**
 - Added shadcn Dialog, Input, and Label components
-- Built AddContactForm component (modal form UI — incomplete, no submit handler)
-- Modified App.tsx and Navigation.tsx
+- Built AddContactForm component (modal form UI)
+- Added CLAUDE.md and PROGRESS.md tracking files
+- Built connectionRepo and noteRepo storage layer
+
+**Commit 6 — `038fea8` — "Seed localStorage with placeholder data and read from the repo, some refactoring and variable name changes"**
+- Seeding logic in App.tsx function body
+- ConnectionList reads from getAllConnections() via useState initial value
+- Refactored prop names in Contact.tsx
+
+**Commit 7 — `bb9be27` — "wire up the AddContactForm submit handler to save a new connection, move around state variables so components have latest data"**
+- handleSubmit in AddContactForm: builds Connection object, saves to localStorage, updates state
+- Lifted dialogOpen and connections state to App.tsx
+- Wired controlled Dialog with open/onOpenChange props
+- Added TypeScript props types to Navigation, ConnectionList, AddContactForm
 
 ---
 
@@ -162,7 +174,6 @@ Work was done across multiple sessions before tracking began. Here's what was bu
     If an action in Component A needs to cause a change in Component B, and neither is a parent/child of the other — they need shared state.
     The moment you find yourself thinking "how do I get this data from here to over there?" and the two components are siblings — that's when you lift state up to their common parent.
 - Importing and using third-party UI components (shadcn/ui)
-- JSON data loading with fetch in React
 - JSON.parse() expects a string value only as input so we must handle a null (falsy value) before it reaches this point
 - React render flow is like a function call chain calling functions top-down
 App() is called
@@ -176,7 +187,12 @@ App() is called
 During a render, React calls your component functions top-to-bottom like normal JavaScript. Any code in the function body runs immediately, in order, before moving to the next line.
 useEffect is the exception — it queues code to run after the render is fully painted to the screen. Think of it as "do this later."
 That's why seeding had to be in the function body (runs during render, before child components) and not in useEffect (runs after everything is already rendered).
-- 
+- CSS: position: fixed takes the element out of the normal flow, so you have to be explicit about its boundaries. it won't grow with the page/viewport
+- **onClick patterns — passing vs calling a function:**
+  - `onClick={handleClick}` — passes the function itself. React stores it, calls it on click. Use when the handler takes **no arguments** (or only the event object).
+  - `onClick={() => handleDelete(contact.id)}` — passes an arrow function wrapper. React stores the arrow function, calls it on click, which then calls `handleDelete(contact.id)`. Use when you need to pass **specific arguments**.
+  - `onClick={handleDelete(contact.id)}` — **BUG: calls the function immediately during render.** The `()` is the "run now" operator. React gets back `undefined` (the return value), not a function. Nothing happens on click.
+  - Rule of thumb: `()` after a function name = "run this now." No `()` = "here's a reference to this function, call it later."
 ---
 
 ## ❓ Questions to Come Back To

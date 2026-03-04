@@ -35,12 +35,14 @@ nav .nav-contact {
 /* connection list */
 .connection-list {
   left: 0;
-  top: 80px;
+  top: 75px;
   position: fixed;
+  height: calc(100vh - 75px);
   width: 30%;
   background-color: aqua;
   border: 5px solid crimson;
   color: black;
+  overflow-y: auto;
 }
 
 @theme inline {
