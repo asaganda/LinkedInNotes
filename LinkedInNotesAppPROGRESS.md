@@ -153,6 +153,30 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 5 — 2026-03-04
+**Ticket worked on:** Ticket 7a — Install React Router and set up basic route configuration
+**What I built:**
+- Installed `react-router-dom` package
+- Added `BrowserRouter` wrapper around `<App />` in `main.tsx`
+- Defined two routes in `App.tsx` using `<Routes>` and `<Route>`:
+  - `/` → renders `ConnectionList`
+  - `/connections/:id` → renders placeholder text (ConnectionDetail coming in next ticket)
+- Kept `Navigation` and `AddContactForm` outside of `<Routes>` since they're always visible
+**What I learned:**
+- React Router v7 has three modes: declarative (simplest, JSX-based), data (adds loaders/actions), and framework (full-stack with file-based routing). Declarative is the right fit for this app since the data layer is localStorage.
+- `BrowserRouter` is infrastructure — it belongs in `main.tsx` alongside `StrictMode`, not inside App.tsx with application logic
+- `<Routes>` can only have `<Route>` as direct children — no `<div>`, `<main>`, or other elements inside it
+- Components that are always visible (Navigation, modals) go outside `<Routes>`. Only URL-dependent content goes inside `<Route>` elements.
+- `:id` in a route path is a dynamic URL parameter — it represents a variable part of the URL (like a specific connection's ID). Accessed via `useParams` hook inside the rendered component.
+- Routing setup is one of the bigger mental shifts in React — you have to think about what the URL controls vs. what's always visible
+**Quiz answers:**
+- Q1: Navigation is outside `<Routes>` because it's always visible on every page regardless of URL. ConnectionList is inside a `<Route>` because it only shows on specific routes (though on desktop both panels will be visible — that's a layout/CSS concern, not routing).
+- Q2: `:id` is a dynamic URL parameter representing a specific connection's ID. Access it with `useParams` inside the component rendered by that route.
+**Decisions made:** Using React Router declarative mode (not data or framework mode). BrowserRouter in main.tsx. URL changes when selecting a connection (supports bookmarking/sharing).
+**Questions / blockers for next time:** Build ConnectionDetail component (Ticket 7b). User shared desktop wireframe: master-detail layout (connection list left ~30%, detail right ~70%) — responsive layout will be addressed later.
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -216,6 +240,12 @@ That's why seeding had to be in the function body (runs during render, before ch
   - `onClick={() => handleDelete(contact.id)}` — passes an arrow function wrapper. React stores the arrow function, calls it on click, which then calls `handleDelete(contact.id)`. Use when you need to pass **specific arguments**.
   - `onClick={handleDelete(contact.id)}` — **BUG: calls the function immediately during render.** The `()` is the "run now" operator. React gets back `undefined` (the return value), not a function. Nothing happens on click.
   - Rule of thumb: `()` after a function name = "run this now." No `()` = "here's a reference to this function, call it later."
+- **React Router declarative mode basics:**
+  - `BrowserRouter` wraps the app in `main.tsx` — infrastructure, not application logic
+  - `<Routes>` is a container that only accepts `<Route>` children — think of it as a switch statement for URLs
+  - `<Route path="/" element={<Component />} />` — maps a URL pattern to a component
+  - `:id` in a path is a dynamic parameter — access it with `useParams()` hook
+  - Components outside `<Routes>` always render (Navigation, modals). Components inside `<Route>` only render when the URL matches.
 ---
 
 ## ❓ Questions to Come Back To

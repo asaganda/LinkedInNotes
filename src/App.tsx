@@ -6,6 +6,7 @@ import AddContactForm from './AddContactForm'
 import type { Connection } from './models/connection'
 import { getAllConnections } from './storage/connectionRepo'
 import fakeData from './placeholderdata.json'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
   if (localStorage.getItem('connections') === null) {
@@ -18,11 +19,12 @@ function App() {
   return (
     <>
       <Navigation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
-      {/* <h1>s</h1> */}
       <main>
-        <ConnectionList connections={connections} setConnections={setConnections}/>
-        <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
-        {/* ConnectionDetail */}
+        <Routes>
+          <Route path="/" element={<ConnectionList connections={connections} setConnections={setConnections}/>}/>
+          <Route path="/connections/:id" element={<p>Connection Detail coming soon</p>}/>
+        </Routes>
+            <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
       </main>
     </>
   )

@@ -104,7 +104,7 @@ src/
   lib/             # Utility functions (cn helper for Tailwind class merging)
   models/          # TypeScript types — Connection, Note ✅
   storage/         # localStorage repo layer — connectionRepo.ts, noteRepo.ts ✅
-  App.tsx           # Root component — owns connections + dialogOpen state, seeds localStorage, renders Navigation + ConnectionList + AddContactForm
+  App.tsx           # Root component — owns connections + dialogOpen state, seeds localStorage, defines Routes (/ and /connections/:id)
   Navigation.tsx    # Header/navbar with "+ New Contact" button (receives dialogOpen props)
   ConnectionList.tsx # Receives connections as prop, renders Contact cards
   Contact.tsx       # Renders individual connection cards with avatar + delete button
@@ -190,7 +190,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 6 complete. Next: connection detail page + routing (Phase 7)
+**Currently working on:** Phase 7 in progress. Ticket 7a complete (React Router setup). Next: build ConnectionDetail component (Ticket 7b)
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -208,7 +208,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [ ] Delete note (delete)
 - [ ] Search/filter connections
 - [ ] Polish + edge cases (empty states, validation)
-- [ ] React Router setup (NOT STARTED — no routing exists yet)
+- [x] React Router setup — BrowserRouter in main.tsx, Routes/Route in App.tsx, declarative mode
 
 ### Known Issues in Current Code
 - Components are flat in `src/` instead of organized into `pages/` and `components/`
