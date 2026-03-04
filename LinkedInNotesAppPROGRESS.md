@@ -130,6 +130,29 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 4 — 2026-03-04
+**Ticket worked on:** Ticket 6a — Add delete button to each connection card
+**What I built:**
+- `handleDelete` function in Contact.tsx: calls `deleteConnection(id)` to remove from localStorage, then `setConnections()` with `.filter()` to update UI state
+- Delete button on each connection card with `onClick={() => handleDelete(contact.id)}`
+- Threaded `setConnections` prop from App → ConnectionList → Contact (prop drilling)
+- Added TypeScript props types for `setConnections` in ConnectionList and Contact
+**What I learned:**
+- Delete requires two actions: remove from storage (persistence) AND update React state (UI). Skipping either causes storage/UI to be out of sync.
+- If you only update storage but not state: UI looks the same until refresh. If you only update state but not storage: UI updates but data comes back on refresh.
+- `.filter()` with `!==` to keep everything except the deleted item — same pattern learned in Session 1 when building `deleteConnection` in the repo
+- onClick patterns: passing a function reference (`handleClick`) vs calling a function (`handleClick()`) vs wrapping in arrow function (`() => handleDelete(id)`)
+- `()` after a function name is the "run now" operator — it executes immediately during render instead of waiting for the click event
+- Prop threading: even if a component only passes a prop through without using it, TypeScript still requires it to be typed in that component's props interface
+- CSS: `position: fixed` needs explicit height + `overflow-y: auto` for scrolling
+**Quiz answers:**
+- Q1: Need both `deleteConnection(id)` and `setConnections()` because one updates storage (persistence) and the other updates UI state — skipping either puts them out of sync
+- Q2: `() => handleDelete(contact.id)` wraps the call in an arrow function so it only runs on click. `handleDelete(contact.id)` runs immediately during render because `()` is the "run now" operator.
+**Decisions made:** Delete button lives on connection cards in Contact.tsx
+**Questions / blockers for next time:** Phase 6 complete. Next: connection detail page + routing (Phase 7)
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**

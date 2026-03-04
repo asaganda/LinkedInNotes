@@ -107,7 +107,7 @@ src/
   App.tsx           # Root component — owns connections + dialogOpen state, seeds localStorage, renders Navigation + ConnectionList + AddContactForm
   Navigation.tsx    # Header/navbar with "+ New Contact" button (receives dialogOpen props)
   ConnectionList.tsx # Receives connections as prop, renders Contact cards
-  Contact.tsx       # Renders individual connection cards with avatar
+  Contact.tsx       # Renders individual connection cards with avatar + delete button
   AddContactForm.tsx # Modal form for adding connections — wired to storage ✅
   placeholderdata.json # 5 fake connections for seeding localStorage on first load
 ```
@@ -190,7 +190,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 4-5 complete. Next: delete connection (Phase 6)
+**Currently working on:** Phase 6 complete. Next: connection detail page + routing (Phase 7)
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -200,7 +200,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] Storage layer — `noteRepo` functions (getAllNotes, getNotesByConnectionId, saveNote, deleteNote, updateNote)
 - [x] Connections list page (read) — reads from localStorage via `getAllConnections()`
 - [x] Add connection form (create) — `handleSubmit` implemented, wired to storage, dialog controlled via lifted state
-- [ ] Delete connection (delete)
+- [x] Delete connection (delete) — `handleDelete` in Contact.tsx, wired to storage + state update via prop threading
 - [ ] Connection detail page
 - [ ] Notes list per connection (read)
 - [ ] Add note (create)
