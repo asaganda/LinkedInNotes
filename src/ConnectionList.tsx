@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import type { Connection } from './models/connection'
 import Contact from './Contact'
-import { getAllConnections } from './storage/connectionRepo'
+import type { Connection } from './models/connection'
+type ConnectionListProps = {
+    connections: Connection[]
+}
 
-const ConnectionList = () => {
-    const [connections, setConnections] = useState<Connection[]>(getAllConnections())
-
+const ConnectionList = ({ connections }: ConnectionListProps): React.JSX.Element => {
+    
     return (
         <div className="connection-list">
             <p>Connection List</p>

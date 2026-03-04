@@ -103,12 +103,13 @@ src/
   components/ui/   # shadcn/ui components (button, dialog, input, label)
   lib/             # Utility functions (cn helper for Tailwind class merging)
   models/          # TypeScript types — Connection, Note ✅
-  App.tsx           # Root component — renders Navigation + ConnectionList
-  Navigation.tsx    # Header/navbar with "+ New Contact" button
-  ConnectionList.tsx # Fetches placeholder data, renders Contact cards
+  storage/         # localStorage repo layer — connectionRepo.ts, noteRepo.ts ✅
+  App.tsx           # Root component — owns connections + dialogOpen state, seeds localStorage, renders Navigation + ConnectionList + AddContactForm
+  Navigation.tsx    # Header/navbar with "+ New Contact" button (receives dialogOpen props)
+  ConnectionList.tsx # Receives connections as prop, renders Contact cards
   Contact.tsx       # Renders individual connection cards with avatar
-  AddContactForm.tsx # Modal form for adding connections (WIP)
-  placeholderdata.json # 5 fake connections for development
+  AddContactForm.tsx # Modal form for adding connections — wired to storage ✅
+  placeholderdata.json # 5 fake connections for seeding localStorage on first load
 ```
 
 **Notable gaps vs. planned structure:**
@@ -189,7 +190,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 3 complete. Next: wire storage layer to UI components (Phase 4-5)
+**Currently working on:** Phase 4-5 complete. Next: delete connection (Phase 6)
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -197,8 +198,8 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] TypeScript models defined (`Connection`, `Note`) — with some differences from spec
 - [x] Storage layer — `connectionRepo` functions (getAllConnections, getConnectionById, saveConnection, deleteConnection)
 - [x] Storage layer — `noteRepo` functions (getAllNotes, getNotesByConnectionId, saveNote, deleteNote, updateNote)
-- [x] Connections list page (read) — working with placeholder data
-- [ ] Add connection form (create) — UI built, **submit handler not implemented, not wired to storage**
+- [x] Connections list page (read) — reads from localStorage via `getAllConnections()`
+- [x] Add connection form (create) — `handleSubmit` implemented, wired to storage, dialog controlled via lifted state
 - [ ] Delete connection (delete)
 - [ ] Connection detail page
 - [ ] Notes list per connection (read)
@@ -210,9 +211,4 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [ ] React Router setup (NOT STARTED — no routing exists yet)
 
 ### Known Issues in Current Code
-- `ConnectionList` useEffect has no dependency array — runs on every render
-- `App.tsx` has unused `connections` state
-- `AddContactForm` is missing its `handleSubmit` implementation
-- Navigation "+ New Contact" button shows an alert instead of opening the form
-- Data comes from static JSON — no localStorage or repo layer yet
 - Components are flat in `src/` instead of organized into `pages/` and `components/`

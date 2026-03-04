@@ -90,6 +90,34 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 3 — 2026-03-03
+**Ticket worked on:** Ticket 4a — Seed localStorage with placeholder data and read from the repo; Ticket 5a — Wire up AddContactForm submit handler to save a new connection to localStorage
+**What I built:**
+- Seeding logic in `App.tsx` function body: checks if localStorage is null, seeds with placeholder data before `useState` reads it
+- `ConnectionList` now reads from `getAllConnections()` via `useState` initial value (removed `useEffect` and `fetch()`)
+- `handleSubmit` in `AddContactForm`: builds Connection object from form state, generates ID with `crypto.randomUUID()`, saves with `saveConnection()`, closes dialog, updates connections state
+- Lifted `dialogOpen` state to `App`, passed as props to `Navigation` and `AddContactForm`
+- Lifted `connections` state to `App`, passed as props to `ConnectionList` and `AddContactForm`
+- Wired shadcn `Dialog` with `open` and `onOpenChange` props for controlled open/close
+- Added TypeScript props types to `Navigation`, `ConnectionList`, and `AddContactForm`
+**What I learned:**
+- React render flow: function body code runs during render (top-down), `useEffect` runs after render. Seeding localStorage had to be in the function body so child components could read it during the same render.
+- `useState` initial value runs once during first render — for synchronous data like localStorage, no `useEffect` needed
+- Lifting state up: when siblings need to share state, move it to their common parent. Signal: "how do I get data from here to over there?" between siblings.
+- Controlled components pattern: parent owns state (`open`), child reports changes (`onOpenChange`). Same pattern as `value`/`onChange` on inputs.
+- `useState` callback form `setConnections(prev => [...prev, newItem])` — React gives guaranteed latest state as `prev`, safer than using a potentially stale snapshot variable
+- TypeScript: when typing a setState prop that accepts callbacks, type must include both forms: `(value: T[] | ((prev: T[]) => T[])) => void`
+- `SubmitEvent<HTMLFormElement>` replaces deprecated `FormEvent` in React 19
+- `crypto.randomUUID()` for generating unique IDs — no library needed
+- shadcn/Radix Dialog props come from the underlying Radix library, not the wrapper file — look up Radix docs or hover in IDE
+**Quiz answers:**
+- Q1: Connections state needed to live in `App` because both `ConnectionList` (needs the value) and `AddContactForm` (needs the setter) required access — siblings can't share state directly, so it lifts to their common parent
+- Q2: Callback form `prev => [...prev, newItem]` is safer because React gives the guaranteed latest state, while the direct form uses a snapshot that could be stale if multiple updates are queued
+**Decisions made:** ID generation uses `crypto.randomUUID()`, localStorage seeding happens in `App` function body (not `useEffect`)
+**Questions / blockers for next time:** Phase 4-5 complete. Next: delete connection (Phase 6)
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -111,7 +139,7 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 | Decision | What we chose | Why |
 |---|---|---|
 | Storage abstraction | Repository pattern (UI → repo → localStorage) | Makes it swappable later (e.g. Supabase) without rewriting UI |
-| ID generation | To be decided in session | Options: `crypto.randomUUID()`, `uuid` library, timestamp-based |
+| ID generation | `crypto.randomUUID()` | Built-in browser API, no library needed, generates unique UUIDs |
 | Routing | React Router | Two distinct pages with a dynamic `:id` param needed |
 | UI component library | shadcn/ui + Radix UI + Tailwind | Accessible, customizable components with utility-first styling |
 | Avatar display | ui-avatars.com API | Generates letter avatars from names, no image upload needed |
@@ -130,6 +158,9 @@ Work was done across multiple sessions before tracking began. Here's what was bu
     This is used for side effects that don't need to be ready before the first render
 - useState for managing component-level state
     useState tells React "when this data changes, re-render the component." A plain variable wouldn't trigger a re-render — the screen would be stale even after the data changed in localStorage.
+- Lifting state up: When sibling components (Navigation, ConnectionList, AddContactForm) need to share state, move that state to their common parent (App) and pass it down as props. Siblings can't talk to each other directly.
+    If an action in Component A needs to cause a change in Component B, and neither is a parent/child of the other — they need shared state.
+    The moment you find yourself thinking "how do I get this data from here to over there?" and the two components are siblings — that's when you lift state up to their common parent.
 - Importing and using third-party UI components (shadcn/ui)
 - JSON data loading with fetch in React
 - JSON.parse() expects a string value only as input so we must handle a null (falsy value) before it reaches this point
@@ -153,6 +184,4 @@ That's why seeding had to be in the function body (runs during render, before ch
 > Park questions here that came up mid-session but weren't the current focus.
 
 - Should we add `createdAt`/`updatedAt` timestamps back to the Connection model?
-- The build sequence was skipped — jumped ahead to UI (Phase 4-5) before building the storage layer (Phase 3). Should we go back and build storage before continuing?
 - File organization: components are flat in `src/` instead of in `pages/` and `components/`. Reorganize now or later?
-- `useEffect` in ConnectionList has no dependency array — runs every render. Fix needed.

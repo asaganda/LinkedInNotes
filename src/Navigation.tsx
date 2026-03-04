@@ -1,10 +1,14 @@
 import { Button } from "./components/ui/button"
-
-const handleClick = () => {
-    alert("button click!")
+type NavigationProps= {
+    dialogOpen: boolean,
+    setDialogOpen: (value: boolean) => void
 }
 
-const Navigation = () => {
+const Navigation = ({ dialogOpen, setDialogOpen }: NavigationProps): React.JSX.Element => {
+
+    const handleClick = () => {
+        setDialogOpen(!dialogOpen)
+    }
     return (
         <header>
             <nav>

@@ -1,16 +1,19 @@
-import { useState } from "react"
+import { useState, type SubmitEvent } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./components/ui/dialog"
 import { Label } from "./components/ui/label"
 import { Input } from "./components/ui/input"
 import { Button } from "./components/ui/button"
+import type { Connection } from "./models/connection"
+import { saveConnection } from "./storage/connectionRepo"
 
+type AddContactFormProps = {
+    dialogOpen: boolean,
+    setDialogOpen: (value: boolean) => void,
+    setConnections: (value: Connection[] | ((prev: Connection[]) => Connection[])) => void
 
-// type AddContactFormProps = {
-//     open: boolean,
-//     onOpenChange: 
-// }
+}
 
-const AddContactForm = (open, onOpenChange) => {
+const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContactFormProps): React.JSX.Element => {
     const [name, setName] = useState<string>("")
     const [jobTitle, setJobTitle] = useState<string>("")
     const [linkedinUrl, setLinkedinUrl] = useState<string>("")
@@ -18,9 +21,25 @@ const AddContactForm = (open, onOpenChange) => {
     const [phone, setPhone] = useState<string>("")
     const [email, setEmail] = useState<string>("")
 
+    const handleSubmit = (e: SubmitEvent<HTMLFormElement>): void => {
+        e.preventDefault()
+        const newConnection: Connection = { 
+            id: crypto.randomUUID(),
+            name: name,
+            jobTitle: jobTitle,
+            linkedinUrl: linkedinUrl,
+            company: company,
+            phone: phone,
+            email: email
+        }
+        saveConnection(newConnection)
+        setDialogOpen(false)
+        setConnections((prev: Connection[]): Connection[] => [...prev, newConnection])
+    }
+
     return (
         <>
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Add New Contact</DialogTitle>
@@ -34,7 +53,7 @@ const AddContactForm = (open, onOpenChange) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="John Doe"
-                        required        {/* HTML5 built-in validation — browser prevents empty submit */}
+                        required
                         />
                     </div>
 
@@ -56,7 +75,7 @@ const AddContactForm = (open, onOpenChange) => {
                         value={linkedinUrl}
                         onChange={(e) => setLinkedinUrl(e.target.value)}
                         placeholder="https://linkedin.com/in/johndoe"
-                        type="url"     {/* HTML5 url validation — browser checks format */}
+                        type="url"
                         required
                         />
                     </div>
@@ -89,7 +108,7 @@ const AddContactForm = (open, onOpenChange) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="john@example.com"
-                        type="email"   {/* HTML5 email validation */}
+                        type="email"
                         />
                     </div>
 
