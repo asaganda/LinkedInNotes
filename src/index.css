@@ -45,6 +45,18 @@ nav .nav-contact {
   overflow-y: auto;
 }
 
+/* connection detail */
+.connection-full {
+  right: 0;
+  top: 75px;
+  position: fixed;
+  height: calc(100vh - 75px);
+  width: 60%;
+  background-color: aqua;
+  border: 5px solid crimson;
+  color: black;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

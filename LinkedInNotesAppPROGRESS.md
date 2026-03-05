@@ -220,6 +220,26 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 8 — 2026-03-05
+**Ticket worked on:** Ticket 8a — Display note for a connection on the detail page
+**What I built:**
+- Renamed `getNotesByConnectionId` to `getNoteByConnectionId` in `noteRepo.ts` — changed from `.filter()` (returns `Note[]`) to `.find()` (returns `Note | undefined`) to match the MVP one-note-per-connection decision
+- Updated the export in `noteRepo.ts` accordingly
+- Wired `getNoteByConnectionId(id)` into `ConnectionDetail.tsx` to display the note body
+- Added conditional rendering for both cases: `{note && <p>{note.body}</p>}` and `{!note && <p>No note written yet.</p>}`
+- Removed unused `import type { Note }` from ConnectionDetail (TypeScript infers the type from the repo function's return)
+**What I learned:**
+- Early return vs. conditional rendering — early return exits the entire component (use for true failures like missing `id`). Conditional rendering keeps the rest of the page visible (use for optional sections like "no note yet"). "No note" is a normal state, not a failure.
+- Keeping data logic in the repo layer — changed from `.filter()` to `.find()` in the repo, not in the component. The component asks "give me the note" without caring about the underlying data structure.
+- `.find()` vs `.filter()` — `.find()` returns the first match or `undefined`. `.filter()` returns an array of all matches. Use `.find()` when you expect one result.
+**Quiz answers:**
+- Q1: Early return was wrong for "no note" because connection detail info should still display — "no note" is a normal state, not a failure. Early return was correct for "no id" because that's a true dead-end where nothing else can render.
+- Q2: The `.filter()` → `.find()` change was done in the repo layer so the component doesn't need to know about the underlying data structure. Separation of concerns — if requirements change later, update the repo, not the UI.
+**Decisions made:** MVP one note per connection. Repo function returns `Note | undefined` (not an array). Component uses conditional rendering for optional note section.
+**Questions / blockers for next time:** Phase 8 read complete. Next: add note (create) — Ticket 8b.
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -247,6 +267,7 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 | Avatar display | ui-avatars.com API | Generates letter avatars from names, no image upload needed |
 | Add contact UI | Modal dialog (shadcn Dialog) | Keeps user on the connections list while adding |
 | Connection model changes | Made `jobTitle` and `linkedinUrl` required, added `phone` and `email` | Diverged from original spec — needs review |
+| Notes per connection | One note per connection for MVP | Simplifies UI and logic; can expand to multiple notes later |
 
 ---
 
@@ -296,6 +317,8 @@ That's why seeding had to be in the function body (runs during render, before ch
   - <Link> component for SPA navigation — React Router's <Link> updates the URL and swaps components without a full page reload, preserving all React state. A plain <a> tag triggers a full reload, destroying and rebuilding everything.
   - Event bubbling — click events travel up from child to parent elements. An interactive element (button) inside a <Link> triggers both — the button's onClick AND the Link's navigation. Fix by restructuring so they aren't nested.
   - <Link to> syntax — use the simple string form <Link to={`/path/${id}`}> when you just need a path.
+  - Early return vs. conditional rendering — knowing which to use. Early return is for when nothing else in the component should render (a true failure/dead-end). Conditional rendering is for when one section is optional but the rest of the page should still display. "No note" is a normal state, not a failure.
+  - Keeping data logic in the repo layer. Changed from .filter() (returns array) to .find() (returns single item) in the repo, not in the component. The component asks "give me the note" and doesn't care about the underlying data structure. If requirements change later, you update the repo, not the UI.
 ---
 
 ## ❓ Questions to Come Back To

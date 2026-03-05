@@ -4,9 +4,9 @@ const getAllNotes = (): Note[] => {
     return JSON.parse(localStorage.getItem('notes') || '[]')
 }
 
-const getNotesByConnectionId = (connId: string): Note[] => {
+const getNoteByConnectionId = (connId: string): Note | undefined => {
     const allNotes: Note[] = getAllNotes()
-    const connectionIdNote: Note[] = allNotes.filter((note: Note) => note.connectionId === connId)
+    const connectionIdNote: Note | undefined = allNotes.find((note: Note) => note.connectionId === connId)
     return connectionIdNote
 }
 
@@ -28,4 +28,4 @@ const updateNote = (updatedNote: Note): void => {
     localStorage.setItem('notes', JSON.stringify(updatedNotes))
 }
 
-export { getAllNotes, getNotesByConnectionId, saveNote, deleteNote, updateNote} 
+export { getAllNotes, getNoteByConnectionId, saveNote, deleteNote, updateNote} 

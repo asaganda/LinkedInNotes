@@ -108,7 +108,7 @@ src/
   Navigation.tsx    # Header/navbar with "+ New Contact" button (receives dialogOpen props)
   ConnectionList.tsx # Receives connections as prop, renders Contact cards
   Contact.tsx       # Renders individual connection cards with avatar + delete button + Link navigation to detail ✅
-  ConnectionDetail.tsx # Connection detail view — reads :id from URL, displays full connection info ✅
+  ConnectionDetail.tsx # Connection detail view — reads :id from URL, displays connection info + note (or "No note written yet" fallback) ✅
   AddContactForm.tsx # Modal form for adding connections — wired to storage ✅
   placeholderdata.json # 5 fake connections for seeding localStorage on first load
 ```
@@ -135,8 +135,8 @@ src/
 ### Screen 2 — Connection Detail (`/connections/:id`)
 - Header with a back button to return to the list
 - Avatar + connection info (name, job title, company) at the top
-- Scrollable list of notes below
-- Actions: add note button, edit and delete per individual note
+- Single note displayed below (MVP: one note per connection, may expand to multiple later)
+- Actions: add/edit note, delete note
 
 **Why this layout was chosen over the alternative:**
 A master-detail layout (both panels on one screen) was considered but rejected — it's harder to build, requires more complex state management, and feels cramped on mobile. The two-screen approach maps directly to the route structure already defined, keeps each screen focused on one job, and follows standard mobile UX patterns users already understand.
@@ -191,19 +191,19 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 7 complete. Tickets 7a (React Router setup), 7b (ConnectionDetail component), and 7c (Link navigation from list to detail) all done. Next: notes list per connection (Phase 8).
+**Currently working on:** Ticket 8a complete (display note on detail page). Phase 7 fully done. Phase 8 in progress — next: add note (create).
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
 - [x] Folder structure created (partially — diverged from plan, see above)
 - [x] TypeScript models defined (`Connection`, `Note`) — with some differences from spec
 - [x] Storage layer — `connectionRepo` functions (getAllConnections, getConnectionById, saveConnection, deleteConnection)
-- [x] Storage layer — `noteRepo` functions (getAllNotes, getNotesByConnectionId, saveNote, deleteNote, updateNote)
+- [x] Storage layer — `noteRepo` functions (getAllNotes, getNoteByConnectionId, saveNote, deleteNote, updateNote)
 - [x] Connections list page (read) — reads from localStorage via `getAllConnections()`
 - [x] Add connection form (create) — `handleSubmit` implemented, wired to storage, dialog controlled via lifted state
 - [x] Delete connection (delete) — `handleDelete` in Contact.tsx, wired to storage + state update via prop threading
 - [x] Connection detail page — ConnectionDetail.tsx reads `:id` from URL via useParams, displays connection data with fallback for not found
-- [ ] Notes list per connection (read)
+- [x] Note per connection (read) — MVP: one note per connection, displayed on ConnectionDetail page via `getNoteByConnectionId`
 - [ ] Add note (create)
 - [ ] Edit note (update)
 - [ ] Delete note (delete)
