@@ -202,6 +202,24 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 7 — 2026-03-05
+**Ticket worked on:** Ticket 7c — Make connection cards clickable to navigate to the detail page
+**What I built:**
+- Added `<Link>` from React Router to Contact.tsx, wrapping the avatar, name, and job title so clicking navigates to `/connections/:id`
+- Moved the delete button outside of `<Link>` to prevent event bubbling from triggering navigation on delete click
+- Used string form of `to` prop: `<Link to={`/connections/${contact.id}`}>`
+**What I learned:**
+- `<Link>` component for SPA navigation — updates URL and swaps components without a full page reload, preserving React state. A plain `<a>` tag triggers a full reload, destroying everything.
+- Event bubbling — click events travel up from child to parent. A button inside a `<Link>` triggers both the button's onClick AND the Link's navigation. Fixed by restructuring so they aren't nested.
+- `<Link to>` syntax — simple string form for paths, object form `to={{ pathname: "..." }}` for when you need search params or hash.
+**Quiz answers:**
+- Q1: Wrapping the whole card in `<Link>` caused the delete button click to bubble up to the Link, triggering navigation. The behavior is called event bubbling.
+- Q2: `<Link>` prevents a full page reload — it intercepts the click, updates the URL, and swaps the component while keeping all React state intact. A plain `<a>` tag causes the browser to reload the entire page, destroying and rebuilding all state.
+**Decisions made:** `<Link>` wraps only the clickable content (avatar, name, job title), not the entire card. Delete button sits outside `<Link>` to avoid event bubbling.
+**Questions / blockers for next time:** Phase 7 navigation complete. Next: notes list per connection (Phase 8).
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -275,6 +293,9 @@ That's why seeding had to be in the function body (runs during render, before ch
   - Type narrowing with early return — useParams gives string | undefined, but your function expects string. Instead of casting or ignoring it, you check for the bad case first and return early. After that check, TypeScript knows id is a string. This is a pattern you'll use constantly.
   - Handling multiple failure points — one component can fail in different ways (no id in URL vs. id doesn't match any data). Each needs its own guard. Thinking through "what could go wrong and where" is a core part of building robust components.
   - Conditional rendering with && — using truthy/falsy checks to show or hide JSX blocks. And flipping it with ! for the inverse case.
+  - <Link> component for SPA navigation — React Router's <Link> updates the URL and swaps components without a full page reload, preserving all React state. A plain <a> tag triggers a full reload, destroying and rebuilding everything.
+  - Event bubbling — click events travel up from child to parent elements. An interactive element (button) inside a <Link> triggers both — the button's onClick AND the Link's navigation. Fix by restructuring so they aren't nested.
+  - <Link to> syntax — use the simple string form <Link to={`/path/${id}`}> when you just need a path.
 ---
 
 ## ❓ Questions to Come Back To
