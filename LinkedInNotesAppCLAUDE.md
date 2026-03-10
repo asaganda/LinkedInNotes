@@ -108,7 +108,7 @@ src/
   Navigation.tsx    # Header/navbar with "+ New Contact" button (receives dialogOpen props)
   ConnectionList.tsx # Receives connections as prop, renders Contact cards
   Contact.tsx       # Renders individual connection cards with avatar + delete button + Link navigation to detail ✅
-  ConnectionDetail.tsx # Connection detail view — reads :id from URL, displays connection info + note (or "No note written yet" fallback) ✅
+  ConnectionDetail.tsx # Connection detail view — reads :id from URL, displays connection info + note (or textarea to create note) ✅
   AddContactForm.tsx # Modal form for adding connections — wired to storage ✅
   placeholderdata.json # 5 fake connections for seeding localStorage on first load
 ```
@@ -191,7 +191,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Ticket 8a complete (display note on detail page). Phase 7 fully done. Phase 8 in progress — next: add note (create).
+**Currently working on:** Ticket 8b complete (add note create). Phase 8 in progress — next: edit note (Ticket 8c).
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -204,7 +204,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] Delete connection (delete) — `handleDelete` in Contact.tsx, wired to storage + state update via prop threading
 - [x] Connection detail page — ConnectionDetail.tsx reads `:id` from URL via useParams, displays connection data with fallback for not found
 - [x] Note per connection (read) — MVP: one note per connection, displayed on ConnectionDetail page via `getNoteByConnectionId`
-- [ ] Add note (create)
+- [x] Add note (create) — textarea + Save button in ConnectionDetail, `handleSave` builds Note object and calls `saveNote()`, `useState` for note triggers re-render to display saved note
 - [ ] Edit note (update)
 - [ ] Delete note (delete)
 - [ ] Search/filter connections

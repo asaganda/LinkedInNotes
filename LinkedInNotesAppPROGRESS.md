@@ -240,6 +240,28 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 9 — 2026-03-10
+**Ticket worked on:** Ticket 8b — Add note (create) for a connection on the detail page
+**What I built:**
+- Added `useState` for `noteValue` (textarea input) and converted `note` from a plain variable to `useState<Note | undefined>` in ConnectionDetail.tsx
+- Used a ternary in the `useState` initializer to handle `id` being `undefined` before the early return: `id ? getNoteByConnectionId(id) : undefined`
+- Added a `<textarea>` with `onChange` handler and `value` prop (controlled input), plus a "Save Note" button — visible only when no note exists
+- Built `handleSave` function: constructs a `Note` object with `crypto.randomUUID()`, `new Date().toLocaleString()`, and `noteValue`, then calls `saveNote(newNote)` to persist and `setNote(newNote)` to update UI
+- After save, conditional rendering switches from textarea/button to `<p>{note.body}</p>`
+**What I learned:**
+- Rules of Hooks — React tracks hooks by position (1st hook, 2nd hook, etc.). Every render must call the same number of hooks in the same order. Hooks cannot be placed after an early return because some renders would skip them, breaking React's internal tracking.
+- Ternary in `useState` initializer — to satisfy both React's hooks rule (must run before early return) and TypeScript (id might be undefined), use a ternary expression as the initial value: `id ? getNoteByConnectionId(id) : undefined`
+- Variable shadowing bug — renaming a variable (`note` → `newNote`) but forgetting to update all references (`setNote(note)` should have been `setNote(newNote)`) causes the old state value to be passed back, so nothing updates. Always check all references after renaming.
+- Storage + state sync pattern — same as delete: `saveNote()` persists to localStorage, `setNote()` updates React state. Skipping either puts storage and UI out of sync.
+- Plain variable vs `useState` — a plain variable reads once per render but can't trigger a re-render. `useState` gives a setter that tells React "this value changed, re-render."
+**Quiz answers:**
+- Q1: Both `saveNote(newNote)` and `setNote(newNote)` are needed because one persists to localStorage and the other updates React state. Only doing one leaves either storage or UI out of date — same pattern as `handleDelete`.
+- Q2: `note` was changed from a plain variable to `useState` because a plain variable can't trigger a re-render. After saving, the component needs to re-render to switch from the textarea to the note display. `useState` provides the setter to make that happen.
+**Decisions made:** Note creation uses `new Date().toLocaleString()` for `createdAt`. Textarea + Save button only visible when no note exists. `handleSave` builds full Note object inline.
+**Questions / blockers for next time:** Ticket 8b complete. Next: edit note (Ticket 8c) — inline edit pattern where clicking saved note text turns it into an editable textarea.
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -319,6 +341,8 @@ That's why seeding had to be in the function body (runs during render, before ch
   - <Link to> syntax — use the simple string form <Link to={`/path/${id}`}> when you just need a path.
   - Early return vs. conditional rendering — knowing which to use. Early return is for when nothing else in the component should render (a true failure/dead-end). Conditional rendering is for when one section is optional but the rest of the page should still display. "No note" is a normal state, not a failure.
   - Keeping data logic in the repo layer. Changed from .filter() (returns array) to .find() (returns single item) in the repo, not in the component. The component asks "give me the note" and doesn't care about the underlying data structure. If requirements change later, you update the repo, not the UI.
+  - Ternary in useState initializer — handles uncertain values (like id being undefined) so the hook can live before the early return.
+  - Plain variable vs useState — a plain variable can't trigger a re-render; useState can, which is what makes the UI switch from textarea to saved note.
 ---
 
 ## ❓ Questions to Come Back To
