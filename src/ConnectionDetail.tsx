@@ -1,14 +1,16 @@
 import { useParams } from "react-router-dom"
 import { getConnectionById } from "./storage/connectionRepo";
-import { getNoteByConnectionId, saveNote } from "./storage/noteRepo";
+import { getNoteByConnectionId, saveNote, updateNote } from "./storage/noteRepo";
 import { useState } from "react";
 import { Button } from "./components/ui/button";
 import type { Note } from "./models/note";
 
 const ConnectionDetail = () => {
-    const [noteValue, setNoteValue] = useState('')
+    const [noteString, setNoteString] = useState('')
     const { id } = useParams();
     const [note, setNote] = useState<Note | undefined>(id ? getNoteByConnectionId(id) : undefined)
+    const [isEditing, setIsEditing] = useState(false)
+
     if (id === undefined) {
         return <h2>Connection not found.</h2>
     }
@@ -18,11 +20,27 @@ const ConnectionDetail = () => {
         const newNote: Note = {
             id: crypto.randomUUID(),
             connectionId: id,
-            body: noteValue,
+            body: noteString,
             createdAt: new Date().toLocaleString()
         }
         saveNote(newNote)
         setNote(newNote)
+    }
+
+    const handleGoInEditMode = (noteText: string): void => {
+        setIsEditing(true)
+        setNoteString(noteText)
+    }
+
+    const handleEditSave = () => {
+        if (note === undefined) {
+            setIsEditing(false)
+            return
+        }
+        const updatedNote: Note = {...note, body: noteString}
+        updateNote(updatedNote)
+        setNote(updatedNote)
+        setIsEditing(false)
     }
 
     return (
@@ -42,13 +60,19 @@ const ConnectionDetail = () => {
                 {!connection && 
                     <p>Connection not found.</p>
                 }
-                {note && 
-                    <p>{note.body}</p>
+                {note && !isEditing &&
+                    <p onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
+                }
+                {note && isEditing &&
+                    <>
+                    <textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
+                    <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
+                    </>
                 }
                 {!note && 
                     <>
                     <p>No note written yet.</p>
-                    <textarea onChange={e => setNoteValue(e.target.value)} value={noteValue} placeholder="type note here"></textarea>
+                    <textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
                     <Button variant="outline" size="sm" onClick={ handleSave}>Save Note</Button>
                     </>
                 }

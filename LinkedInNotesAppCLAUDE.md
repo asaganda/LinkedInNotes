@@ -191,7 +191,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Ticket 8b complete (add note create). Phase 8 in progress — next: edit note (Ticket 8c).
+**Currently working on:** Ticket 8c complete (edit note). Phase 8 in progress — next: delete note (Ticket 8d).
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -205,7 +205,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] Connection detail page — ConnectionDetail.tsx reads `:id` from URL via useParams, displays connection data with fallback for not found
 - [x] Note per connection (read) — MVP: one note per connection, displayed on ConnectionDetail page via `getNoteByConnectionId`
 - [x] Add note (create) — textarea + Save button in ConnectionDetail, `handleSave` builds Note object and calls `saveNote()`, `useState` for note triggers re-render to display saved note
-- [ ] Edit note (update)
+- [x] Edit note (update) — inline edit: clicking `<p>` switches to textarea pre-filled with note body, `handleEditSave` uses spread + `updateNote()` to persist, `setNote()` to update UI, `setIsEditing(false)` to exit edit mode
 - [ ] Delete note (delete)
 - [ ] Search/filter connections
 - [ ] Polish + edge cases (empty states, validation)

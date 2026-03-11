@@ -262,6 +262,32 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 10 — 2026-03-10
+**Ticket worked on:** Ticket 8c — Edit note (update) for a connection on the detail page
+**What I built:**
+- Added `isEditing` boolean state (`useState(false)`) to track view vs. edit mode
+- Built `handleGoInEditMode` function: sets `isEditing` to `true` and pre-fills `noteString` with existing `note.body` so the textarea shows the current note text
+- Built `handleEditSave` function: guards against `note === undefined` with early return (for TypeScript type narrowing), builds updated Note using spread `{...note, body: noteString}`, calls `updateNote()` to persist to localStorage, `setNote()` to update React state, and `setIsEditing(false)` to exit edit mode
+- Added `onClick` to the note `<p>` tag to trigger `handleGoInEditMode`
+- Conditional rendering: `{note && !isEditing &&` shows `<p>`, `{note && isEditing &&` shows textarea + Save button
+- Imported `updateNote` from noteRepo
+- Renamed `noteValue` to `noteString` for clarity (distinguishes the draft string from the full Note object)
+**What I learned:**
+- Boolean state for UI modes — `isEditing` tracks whether the component is in view or edit mode. A boolean `useState` is the simplest way to toggle between two UI states.
+- Pre-filling state on mode switch — when entering edit mode, `noteString` must be set to `note.body` (not left as `''`), otherwise the textarea would appear empty and the user would lose their existing note text.
+- Event handlers don't return JSX — `handleEditSave` is a regular function called on click, not a React component. It does work (update storage, update state) and can use `return` to stop execution, but `return <p>...</p>` won't render anything. Plain `return` is sufficient.
+- Early return in event handlers for type narrowing — same pattern as early return in the component body. After `if (note === undefined) { return }`, TypeScript narrows `note` from `Note | undefined` to `Note`, allowing the spread syntax to work.
+- Spread syntax for partial updates — `{...note, body: noteString}` copies all existing Note fields (id, connectionId, createdAt) and only overrides `body`. This preserves the note's identity so `updateNote` (which matches by `id`) can find and replace it.
+- Create vs. Update distinction — creating a note generates new `id` and `createdAt` because it's a new record. Editing keeps the existing `id` and `createdAt` because it's the same record with modified content.
+- Inline vs. extracted event handlers — inline is fine for single expressions (`onClick={() => setX(true)}`). Extract to a named function when the handler does multiple things or has logic worth naming.
+**Quiz answers:**
+- Q1: `noteString` needs to be pre-filled with `note.body` when entering edit mode because otherwise the textarea would show an empty string — the user would lose their existing note text and have to retype everything.
+- Q2: `handleEditSave` keeps the existing `id` and `createdAt` (via spread) because it's the same note being modified, not a new note. If a new `id` were generated, `updateNote` (which uses `.map()` to match by `id`) would never find the old note to replace it — the data would break.
+**Decisions made:** `isEditing` boolean controls view/edit toggle. `noteString` pre-filled on edit mode entry. Early return in `handleEditSave` for type narrowing. Spread syntax for partial Note updates.
+**Questions / blockers for next time:** Ticket 8c complete. Next: delete note (Ticket 8d).
+
+---
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -303,6 +329,7 @@ Work was done across multiple sessions before tracking began. Here's what was bu
     This is used for side effects that don't need to be ready before the first render
 - useState for managing component-level state
     useState tells React "when this data changes, re-render the component." A plain variable wouldn't trigger a re-render — the screen would be stale even after the data changed in localStorage.
+    - if a value can change during the lifetime of the component and the UI needs to reflect that change, use useState. If it's read-once and static, a plain variable is fine.
 - Lifting state up: When sibling components (Navigation, ConnectionList, AddContactForm) need to share state, move that state to their common parent (App) and pass it down as props. Siblings can't talk to each other directly.
     If an action in Component A needs to cause a change in Component B, and neither is a parent/child of the other — they need shared state.
     The moment you find yourself thinking "how do I get this data from here to over there?" and the two components are siblings — that's when you lift state up to their common parent.
@@ -343,6 +370,13 @@ That's why seeding had to be in the function body (runs during render, before ch
   - Keeping data logic in the repo layer. Changed from .filter() (returns array) to .find() (returns single item) in the repo, not in the component. The component asks "give me the note" and doesn't care about the underlying data structure. If requirements change later, you update the repo, not the UI.
   - Ternary in useState initializer — handles uncertain values (like id being undefined) so the hook can live before the early return.
   - Plain variable vs useState — a plain variable can't trigger a re-render; useState can, which is what makes the UI switch from textarea to saved note.
+  - Boolean useState for UI mode toggling — `isEditing` tracks view vs. edit mode. Simplest way to toggle between two UI states that affect what JSX renders.
+  - Pre-filling state on mode switch — when entering edit mode, set the draft state (`noteString`) to the existing data (`note.body`) so the textarea isn't empty. The *when* matters: do it at the moment of the mode switch, not at component mount.
+  - Event handlers don't return JSX — an event handler (like `handleEditSave`) is a regular function called on user interaction, not a React component. It can use `return` to stop execution, but `return <p>...</p>` won't render anything. Use plain `return` to bail out early.
+  - Early return in event handlers for type narrowing — same pattern as in component body. After `if (note === undefined) { return }`, TypeScript narrows the type so subsequent code can safely use `note` as `Note`.
+  - Spread syntax for partial object updates — `{...note, body: noteString}` copies all fields from the existing object and overrides only the specified ones. Preserves the object's identity (id, createdAt) while changing just what was edited.
+  - Create vs. Update — creating generates new id/createdAt (new record). Updating preserves existing id/createdAt (same record, modified content). Using the wrong approach breaks data matching (e.g. `updateNote` matches by id).
+  - Inline vs. extracted event handlers — inline for single expressions, extracted named function when the handler does multiple things or has logic worth naming for readability.
 ---
 
 ## ❓ Questions to Come Back To
