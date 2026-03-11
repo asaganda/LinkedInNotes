@@ -304,6 +304,30 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 **Decisions made:** Delete button lives in view mode only (`note && !isEditing`). `handleDelete` resets both `note` and `noteString`.
 **Questions / blockers for next time:** Ticket 8d complete. Phase 8 (notes CRUD) fully done. Next: Phase 9 — Search.
 
+### Session 12 — 2026-03-11
+**Ticket worked on:** Ticket 9a — Search/filter connections
+**What I built:**
+- `searchQuery` state in `App.tsx` (`useState('')`)
+- `filteredConnections` derived variable using `.filter()` with case-insensitive matching on `name`, `company` (optional chaining), and `jobTitle`
+- Passed `searchQuery`/`setSearchQuery` to `Navigation`, `filteredConnections` to `ConnectionList`
+- Controlled search input in `Navigation.tsx` wired to `setSearchQuery` via `onChange`
+- Updated `ConnectionList` and `Contact` props from `connections` to `filteredConnections`
+**What I learned:**
+- Derived state vs stored state — if a value can be calculated from existing state, don't put it in `useState`. `filteredConnections` is computed from `connections` + `searchQuery` on every render. Storing it would create two sources of truth.
+- `.filter()` + `||` chaining — callback runs once per item. `||` means keep if ANY condition is true. JavaScript short-circuits: stops evaluating as soon as one condition is true.
+- `?.` optional chaining — safe access on values that might be `undefined`. `connection.company?.toLowerCase()` returns `undefined` instead of throwing if `company` is undefined. The `||` then moves on to the next check.
+- `.includes()` for substring matching — returns `true`/`false`, exactly what `.filter()` needs.
+- `.toLowerCase()` on both sides — normalizes case so "john" matches "John".
+- Re-render drives re-filtering — `filteredConnections` isn't reactive. `setSearchQuery` triggers a re-render of `App`, which re-runs `.filter()` with the new value. The filtering is plain JavaScript; the re-render is what makes it feel live.
+**important**
+      onChange in Navigation → setSearchQuery → searchQuery value changed → App function re-runs → .filter() executes with new searchQuery → new filteredConnections → list updat
+- `filteredConnections` handles both states automatically — when `searchQuery` is `''`, `.includes('')` is always true, so the full list shows. No extra conditional logic needed.
+**Quiz answers:**
+- Q1: `filteredConnections` is a derived variable, not `useState`, because it can be calculated from `connections` and `searchQuery`. Storing it would create two sources of truth that could get out of sync.
+- Q2: User types → `onChange` calls `setSearchQuery` → React re-renders `App` → `.filter()` runs with new `searchQuery` → new `filteredConnections` passed to `ConnectionList` → list updates.
+**Decisions made:** Search filters on name, company, jobTitle. Case-insensitive. Fires on every keystroke. `searchQuery` state lives in `App.tsx`.
+**Questions / blockers for next time:** Phase 9 complete. Next: Phase 10 — Polish (empty states, validation, UX edge cases).
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -396,6 +420,10 @@ That's why seeding had to be in the function body (runs during render, before ch
   - State cleanup on delete — when deleting, reset ALL state variables that were set during the deleted item's lifetime, not just the primary one. In `handleDelete`: `note` → `undefined` (clears the Note object), `noteString` → `''` (clears the draft text). If `isEditing` had been `true`, that would need resetting too. Ask: "what state exists because this item existed?" — reset all of it.
   - Type narrowing in event handlers — `handleDelete` needed `if (note === undefined) { return }` because it accesses `note.id`, and `note` is typed `Note | undefined`. `handleSave` didn't need it because it never touches `note` — it builds a brand new object. The rule: if your handler accesses a property on a value that could be `undefined`, guard it first.
   - `useState` ternary initializer chain — the reason `id ? getNoteByConnectionId(id) : undefined` is written that way traces back through three layers: (1) `.find()` in the repo returns `Note | undefined` because a connection might not have a note; (2) that makes the repo function's return type `Note | undefined`; (3) `useState` must be called before the early return (Rules of Hooks), but at that point `id` is still `string | undefined` — passing `undefined` to `getNoteByConnectionId` would be a type error. The ternary solves it: call the function only when `id` is safe to use, otherwise fall back to `undefined`.
+  - Derived state vs stored state — connections is stored in useState because it needs to persist across renders and can change (add/delete). filteredConnections is never stored — it's just a variable computed from connections and searchQuery on every render. Rule: if a value can be calculated from existing state, don't store it in useState. Storing it would create two sources of truth that could get out of sync.
+  - .filter() + || chaining — the callback runs once per connection. Inside it, || means "keep this connection if the name matches OR the company matches OR the jobTitle matches." JavaScript evaluates left to right and short-circuits — if name matches, it stops checking and returns true immediately. Only checks the next condition if the previous one was false.
+  - `?.` optional chaining — a safe way to access a property that might not exist. `connection.company?.toLowerCase()` means: "if `company` has a value, call `.toLowerCase()` on it. If `company` is `undefined`, stop here and return `undefined` — don't throw an error." Without `?.`, calling `.toLowerCase()` on `undefined` would crash. With it, you get `undefined` back, which is falsy, so the `||` just moves on to the next check.
+  - Re-render drives re-filtering — filteredConnections isn't reactive on its own. When the user types, onChange calls setSearchQuery, which tells React "state changed, re-render App." React re-runs the App function top to bottom, hits the .filter() line with the new searchQuery value, and produces a new filteredConnections array. That gets passed down and the list updates. The filtering is just a plain JavaScript expression — the re-render is what makes it feel live.
 ---
 
 ## ❓ Questions to Come Back To

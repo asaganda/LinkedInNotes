@@ -3,7 +3,7 @@ import type { Connection } from './models/connection'
 import { deleteConnection } from './storage/connectionRepo'
 import { Link } from 'react-router-dom'
 interface ContactProps {
-    connections: Connection[],
+    filteredConnections: Connection[],
     setConnections: (value: Connection[]) => void
 }
 
@@ -11,19 +11,18 @@ const divStyle = {
     border: "5px solid black"
 }
 
-const Contact = ({ connections, setConnections }: ContactProps ): React.JSX.Element => {
+const Contact = ({ filteredConnections, setConnections }: ContactProps ): React.JSX.Element => {
 
     const handleDelete = (id: string): void => {
         deleteConnection(id)
-        const keptConnections: Connection[] = connections.filter(connection => connection.id !== id)
+        const keptConnections: Connection[] = filteredConnections.filter(connection => connection.id !== id)
         setConnections(keptConnections)
     }
 
     return (
         <>
-        <p>{connections.length}</p>
-        {connections.length > 0 ? (
-            connections.map(contact => (
+        {filteredConnections.length > 0 ? (
+            filteredConnections.map(contact => (
                 <div style={divStyle} key={contact.id}>
                     <Link to={`/connections/${contact.id}`}>
                         <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555"/>

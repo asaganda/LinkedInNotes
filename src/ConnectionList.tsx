@@ -1,16 +1,16 @@
 import Contact from './Contact'
 import type { Connection } from './models/connection'
 type ConnectionListProps = {
-    connections: Connection[],
     setConnections: (value: Connection[] | ((prev: Connection[]) => Connection[])) => void
+    filteredConnections: Connection[]
 }
 
-const ConnectionList = ({ connections, setConnections }: ConnectionListProps): React.JSX.Element => {
+const ConnectionList = ({ setConnections, filteredConnections }: ConnectionListProps): React.JSX.Element => {
     
     return (
         <div className="connection-list">
             <p>Connection List</p>
-            <Contact connections={connections} setConnections={setConnections}/>
+            <Contact filteredConnections={filteredConnections} setConnections={setConnections}/>
         </div>
     )
 }

@@ -78,7 +78,7 @@ const ConnectionDetail = () => {
                 }
                 {note && isEditing &&
                     <>
-                    <textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
+                    <textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
                     <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
                     </>
                 }

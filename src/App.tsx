@@ -15,14 +15,21 @@ function App() {
   }
   const [connections, setConnections] = useState<Connection[]>(getAllConnections())
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredConnections: Connection[] = connections.filter((connection: Connection) =>
+      connection.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      connection.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      connection.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   
 
   return (
     <>
-      <Navigation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
+      <Navigation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
       <main>
         <Routes>
-          <Route path="/" element={<ConnectionList connections={connections} setConnections={setConnections}/>}/>
+          <Route path="/" element={<ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>}/>
           <Route path="/connections/:id" element={<ConnectionDetail/>}/>
         </Routes>
             <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
