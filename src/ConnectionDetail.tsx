@@ -4,6 +4,7 @@ import { getNoteByConnectionId, saveNote, updateNote } from "./storage/noteRepo"
 import { useState } from "react";
 import { Button } from "./components/ui/button";
 import type { Note } from "./models/note";
+import { deleteNote } from "./storage/noteRepo";
 
 const ConnectionDetail = () => {
     const [noteString, setNoteString] = useState('')
@@ -43,6 +44,15 @@ const ConnectionDetail = () => {
         setIsEditing(false)
     }
 
+    const handleDelete = () => {
+        if (note === undefined) {
+            return
+        }
+        deleteNote(note.id)
+        setNote(undefined)
+        setNoteString('')
+    }
+
     return (
         <>
             <div className="connection-full">
@@ -61,7 +71,10 @@ const ConnectionDetail = () => {
                     <p>Connection not found.</p>
                 }
                 {note && !isEditing &&
+                    <>
                     <p onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
+                    <Button variant="outline" size="sm" onClick={ handleDelete}>Delete Note</Button>
+                    </>
                 }
                 {note && isEditing &&
                     <>

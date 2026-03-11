@@ -288,6 +288,22 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 11 — 2026-03-11
+**Ticket worked on:** Ticket 8d — Delete note for a connection on the detail page
+**What I built:**
+- `handleDelete` function in `ConnectionDetail.tsx`: type narrows `note` with early return, calls `deleteNote(note.id)` to remove from localStorage, `setNote(undefined)` and `setNoteString('')` to sync all state
+- Delete button in the `note && !isEditing` block — visible only in view mode when a note exists
+- Imported `deleteNote` from noteRepo
+**What I learned:**
+- State cleanup on delete — resetting ALL state variables set during the item's lifetime, not just the primary one. Ask: "what state exists because this item existed?" — reset all of it. `note` → `undefined`, `noteString` → `''`.
+- Type narrowing in event handlers — `handleDelete` needed the guard because it accesses `note.id` and `note` is `Note | undefined`. `handleSave` didn't need it because it never touches `note` — it creates a brand new object. Rule: if your handler accesses a property on something that could be `undefined`, guard it first.
+- `useState` ternary initializer chain — `id ? getNoteByConnectionId(id) : undefined` exists because: `.find()` returns `Note | undefined` → repo return type reflects that → `useState` must be called before the early return (Rules of Hooks) → at that point `id` is still `string | undefined` → ternary safely skips the function call when `id` is undefined.
+**Quiz answers:**
+- Q1: `handleDelete` needed type narrowing because it accesses `note.id` and `note` is `Note | undefined`. `handleSave` didn't because it never reads from `note` — it builds a new object from scratch.
+- Q2: `setNoteString('')` was needed in `handleDelete` because `noteString` still held the old note text. When `note` became `undefined`, the `!note` block rendered the textarea — which is controlled by `noteString`. Without resetting it, the deleted text would reappear.
+**Decisions made:** Delete button lives in view mode only (`note && !isEditing`). `handleDelete` resets both `note` and `noteString`.
+**Questions / blockers for next time:** Ticket 8d complete. Phase 8 (notes CRUD) fully done. Next: Phase 9 — Search.
+
 ### Session [Next] — [Date]
 **Ticket worked on:**
 **What I built:**
@@ -377,6 +393,9 @@ That's why seeding had to be in the function body (runs during render, before ch
   - Spread syntax for partial object updates — `{...note, body: noteString}` copies all fields from the existing object and overrides only the specified ones. Preserves the object's identity (id, createdAt) while changing just what was edited.
   - Create vs. Update — creating generates new id/createdAt (new record). Updating preserves existing id/createdAt (same record, modified content). Using the wrong approach breaks data matching (e.g. `updateNote` matches by id).
   - Inline vs. extracted event handlers — inline for single expressions, extracted named function when the handler does multiple things or has logic worth naming for readability.
+  - State cleanup on delete — when deleting, reset ALL state variables that were set during the deleted item's lifetime, not just the primary one. In `handleDelete`: `note` → `undefined` (clears the Note object), `noteString` → `''` (clears the draft text). If `isEditing` had been `true`, that would need resetting too. Ask: "what state exists because this item existed?" — reset all of it.
+  - Type narrowing in event handlers — `handleDelete` needed `if (note === undefined) { return }` because it accesses `note.id`, and `note` is typed `Note | undefined`. `handleSave` didn't need it because it never touches `note` — it builds a brand new object. The rule: if your handler accesses a property on a value that could be `undefined`, guard it first.
+  - `useState` ternary initializer chain — the reason `id ? getNoteByConnectionId(id) : undefined` is written that way traces back through three layers: (1) `.find()` in the repo returns `Note | undefined` because a connection might not have a note; (2) that makes the repo function's return type `Note | undefined`; (3) `useState` must be called before the early return (Rules of Hooks), but at that point `id` is still `string | undefined` — passing `undefined` to `getNoteByConnectionId` would be a type error. The ternary solves it: call the function only when `id` is safe to use, otherwise fall back to `undefined`.
 ---
 
 ## ❓ Questions to Come Back To
