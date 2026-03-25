@@ -57,30 +57,42 @@ const ConnectionDetail = () => {
         <>
             <div className="pt-24 overflow-y-auto">
                 {connection &&
-                    <div className="connection-detail">
-                        <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555"/>
-                        <p>{connection.name}</p>
-                        <p>{connection.jobTitle}</p>
-                        <p>{connection.company}</p>
-                        <p>{connection.linkedinUrl}</p>
-                        <p>{connection.phone}</p>
-                        <p>{connection.email}</p>
+                    <div className="flex flex-col items-center">
+                        <div className="flex items-center gap-3 mb-3">
+                            <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className="rounded-full"/>
+                            <div className="flex flex-col">
+                                <p className="font-bold">{connection.name}</p>
+                                <p className="text-sm text-gray-500">{connection.jobTitle}</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <p>Company: {connection.company}</p>
+                            <p>LinkedIn: {connection.linkedinUrl}</p>
+                            <p>Phone: {connection.phone}</p>
+                            <p>Email: {connection.email}</p>
+                        </div>
                     </div>
                 }
                 {!connection && 
                     <p>Connection not found.</p>
                 }
+                {note && 
+                    <div className="flex flex-col items-center">
+                        <p>Note:</p>
+                        
+                    </div>
+                }
                 {note && !isEditing &&
-                    <>
-                    <p onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
-                    <Button variant="outline" size="sm" onClick={ handleDelete}>Delete Note</Button>
-                    </>
+                    <div className="flex flex-col items-center">
+                        <p onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
+                        <Button variant="outline" size="sm" onClick={ handleDelete}>Delete Note</Button>
+                    </div>
                 }
                 {note && isEditing &&
-                    <>
-                    <textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
-                    <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
-                    </>
+                    <div className="flex flex-col items-center">
+                        <textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
+                        <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
+                    </div>
                 }
                 {!note && 
                     <>
