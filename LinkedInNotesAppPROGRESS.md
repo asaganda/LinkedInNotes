@@ -328,13 +328,28 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 **Decisions made:** Search filters on name, company, jobTitle. Case-insensitive. Fires on every keystroke. `searchQuery` state lives in `App.tsx`.
 **Questions / blockers for next time:** Phase 9 complete. Next: Phase 10 — Polish (empty states, validation, UX edge cases).
 
-### Session [Next] — [Date]
-**Ticket worked on:**
+### Session 13 — 2026-03-24
+**Ticket worked on:** Ticket 10a — Empty state when search returns no results; Ticket 10b — Form validation on Add Contact form
 **What I built:**
+- Empty state in `Contact.tsx`: `filteredConnections.length === 0` renders "Contact not found! Try another search" instead of an empty list
+- `errorMessages` state in `AddContactForm.tsx` typed as `{ name: string, jobTitle: string, linkedinUrl: string }` with empty string initial values
+- `handleLinkedinUrlBlur` function using `new URL()` in a `try/catch` — `try` clears the error, `catch` sets it. Wired to `onBlur={(e) => handleLinkedinUrlBlur(e.target.value)}` on the LinkedIn URL input
+- Name and jobTitle validation in `handleSubmit` — sequential `if` checks with early `return` before `newConnection` is built
+- Error messages displayed inline in JSX next to each field via `{errorMessages.name}`, `{errorMessages.jobTitle}`, `{errorMessages.linkedinUrl}`
+- Added `noValidate` to the `<form>` element to disable browser's built-in validation so custom logic runs
 **What I learned:**
+- Empty state placement — the check belongs in the component responsible for rendering the list (`Contact.tsx`), not where the data is computed (`App.tsx`)
+- Error messages as an object — `{ name, jobTitle, linkedinUrl }` object over array because you access errors by field name directly next to the relevant input. No index tracking needed.
+- `new URL()` for URL validation — browser built-in, no regex needed. Throws if invalid, so wrap in `try/catch`. `try` clears the error, `catch` sets it.
+- `onBlur` vs `onChange` for validation — `onBlur` fires once when user leaves the field, less noisy than `onChange` especially for paste actions.
+- `noValidate` on the form — disables browser's built-in validation so custom validation logic in `handleSubmit` runs instead. Without it, `required` attributes intercept submit before your code executes.
+- Sequential validation with early return — separate `if` checks, each sets its error and `return`s, stopping execution before `newConnection` is built or saved.
+- Arrow function wrapper for `onBlur` — same pattern as `onClick`. `onBlur={(e) => handleLinkedinUrlBlur(e.target.value)}` extracts the string value from the event before passing to the handler.
 **Quiz answers:**
-**Decisions made:**
-**Questions / blockers for next time:**
+- Q1: Empty state check belongs in `Contact.tsx` because that's the component responsible for rendering the list — `App.tsx` just computes the data, it shouldn't care about how it's displayed.
+- Q2: `noValidate` was needed because the browser's `required` attribute intercepted the submit event before `handleSubmit` ran, so custom validation code never executed.
+**Decisions made:** Empty state message in `Contact.tsx`. `noValidate` on form with custom validation. URL validated on blur, name/jobTitle validated on submit.
+**Questions / blockers for next time:** Error messages for name/jobTitle don't clear when user starts typing to fix them — left as known issue for now.
 
 ---
 

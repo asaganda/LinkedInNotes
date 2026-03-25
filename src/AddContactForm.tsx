@@ -10,7 +10,11 @@ type AddContactFormProps = {
     dialogOpen: boolean,
     setDialogOpen: (value: boolean) => void,
     setConnections: (value: Connection[] | ((prev: Connection[]) => Connection[])) => void
-
+}
+type errorMessagesProps = {
+    name: string,
+    jobTitle: string,
+    linkedinUrl: string
 }
 
 const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContactFormProps): React.JSX.Element => {
@@ -20,9 +24,22 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
     const [company, setCompany] = useState<string>("")
     const [phone, setPhone] = useState<string>("")
     const [email, setEmail] = useState<string>("")
+    const [errorMessages, setErrorMessages] = useState<errorMessagesProps>({
+        name: '',
+        jobTitle: '',
+        linkedinUrl: ''
+    })
 
     const handleSubmit = (e: SubmitEvent<HTMLFormElement>): void => {
         e.preventDefault()
+        if (name === "") {
+            setErrorMessages(prev => ({...prev, name: "name field is empty, don't forget to enter"}))
+            return
+        }
+        if (jobTitle === ""){
+            setErrorMessages(prev => ({...prev, jobTitle: "job title is empty, don't forget to enter"}))
+            return
+        }
         const newConnection: Connection = { 
             id: crypto.randomUUID(),
             name: name,
@@ -37,6 +54,15 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
         setConnections((prev: Connection[]): Connection[] => [...prev, newConnection])
     }
 
+    const handleLinkedinUrlBlur = (url: string) => {
+        try {
+            new URL(url)
+            setErrorMessages(prev => ({...prev, linkedinUrl: ""}))
+        } catch {
+            setErrorMessages(prev => ({...prev, linkedinUrl: "check the linkedin url again, something is wrong"}))
+        }
+    }
+
     return (
         <>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -45,7 +71,7 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
                     <DialogTitle>Add New Contact</DialogTitle>
                 </DialogHeader>
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                     <div>
                         <Label htmlFor="name">Name *</Label>
                         <Input
@@ -55,6 +81,7 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
                         placeholder="John Doe"
                         required
                         />
+                        {errorMessages.name}
                     </div>
 
                     <div>
@@ -66,6 +93,7 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
                         placeholder="Software Engineer"
                         required
                         />
+                        {errorMessages.jobTitle}
                     </div>
 
                     <div>
@@ -74,10 +102,12 @@ const AddContactForm = ({ dialogOpen, setDialogOpen, setConnections}: AddContact
                         id="linkedinUrl"
                         value={linkedinUrl}
                         onChange={(e) => setLinkedinUrl(e.target.value)}
+                        onBlur={(e) => handleLinkedinUrlBlur(e.target.value)}
                         placeholder="https://linkedin.com/in/johndoe"
                         type="url"
                         required
                         />
+                        {errorMessages.linkedinUrl}
                     </div>
 
                     {/* Optional fields — same pattern but without `required` */}
