@@ -8,7 +8,7 @@ type ConnectionListProps = {
 const ConnectionList = ({ setConnections, filteredConnections }: ConnectionListProps): React.JSX.Element => {
     
     return (
-        <div className="connection-list">
+        <div className="pt-24 overflow-y-auto">
             <p>Connection List</p>
             <Contact filteredConnections={filteredConnections} setConnections={setConnections}/>
         </div>

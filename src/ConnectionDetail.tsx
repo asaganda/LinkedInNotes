@@ -55,7 +55,7 @@ const ConnectionDetail = () => {
 
     return (
         <>
-            <div className="connection-full">
+            <div className="pt-24 overflow-y-auto">
                 {connection &&
                     <div className="connection-detail">
                         <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555"/>
