@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { getConnectionById } from "./storage/connectionRepo";
 import { getNoteByConnectionId, saveNote, updateNote } from "./storage/noteRepo";
 import { useState } from "react";
@@ -56,8 +56,9 @@ const ConnectionDetail = () => {
     return (
         <>
             <div className="pt-24 overflow-y-auto">
+                <Link className="inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md" to="/">Back</Link>
                 {connection &&
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center mb-3">
                         <div className="flex items-center gap-3 mb-3">
                             <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className="rounded-full"/>
                             <div className="flex flex-col">
@@ -65,7 +66,7 @@ const ConnectionDetail = () => {
                                 <p className="text-sm text-gray-500">{connection.jobTitle}</p>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 w-80">
                             <p>Company: {connection.company}</p>
                             <p>LinkedIn: {connection.linkedinUrl}</p>
                             <p>Phone: {connection.phone}</p>
@@ -77,19 +78,18 @@ const ConnectionDetail = () => {
                     <p>Connection not found.</p>
                 }
                 {note && 
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center mb-3">
                         <p>Note:</p>
-                        
                     </div>
                 }
                 {note && !isEditing &&
                     <div className="flex flex-col items-center">
-                        <p onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
+                        <p className="mb-3" onClick={() => handleGoInEditMode(note.body)}>{note.body}</p>
                         <Button variant="outline" size="sm" onClick={ handleDelete}>Delete Note</Button>
                     </div>
                 }
                 {note && isEditing &&
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center w-80">
                         <textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
                         <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
                     </div>

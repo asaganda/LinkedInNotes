@@ -209,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 11 — Mobile UI. Tickets 11a (header two-row layout) and 11b (port connection list/detail CSS to Tailwind) complete. Working on Ticket 11c — style connection list cards.
+**Currently working on:** Phase 11 complete (mobile UI). Next: Phase 12 — Tablet/Desktop responsive layout.
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)

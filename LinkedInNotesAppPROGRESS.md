@@ -356,6 +356,31 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 14 — 2026-03-25
+**Ticket worked on:** Tickets 11a–11e — Phase 11 Mobile UI
+**What I built:**
+- **11a:** Restructured `Navigation.tsx` header to two rows on mobile (`flex-col`), one row on tablet+ (`md:flex-row`). Replaced all plain CSS nav rules with Tailwind classes on `<header>` and `<nav>`. Removed `inputStyle` inline style, replaced with `bg-white` Tailwind class. Deleted `nav {}` and `nav a {}` blocks from `index.css`.
+- **11b:** Replaced `.connection-list` and `.connection-full` plain CSS classes in `ConnectionList.tsx` and `ConnectionDetail.tsx` with `pt-24 overflow-y-auto`. Deleted both CSS blocks from `index.css`. Decision: panels are not `fixed` on mobile — they flow naturally and the page scrolls. `overflow-y-auto` is inert until a fixed height is set (Phase 12).
+- **11c:** Styled connection cards in `Contact.tsx` — `flex items-center` on the card div, `flex-1` on `<Link>` so the whole left area is tappable, `rounded-full` on avatar, `flex flex-col` wrapping name+jobTitle. `border-b border-gray-200` between rows.
+- **11d:** Styled `ConnectionDetail.tsx` connection info section — avatar + name + jobTitle in a header row (`flex items-center gap-3`), name `font-bold`, jobTitle `text-sm text-gray-500`. Secondary fields (company, linkedinUrl, phone, email) grouped in a `flex flex-col gap-2` section below.
+- **11e:** Added `<Link to="/">Back</Link>` at the top of `ConnectionDetail.tsx` above all connection info. Styled as `inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md`.
+**What I learned:**
+- `flex` must be present for `flex-col` / `flex-row` / `justify-between` / `items-center` to work — these are modifiers of flex layout, not standalone properties.
+- `flex-col` + `md:flex-row` is the mobile-first pattern for switching a flex container from stacked rows to a single row at a breakpoint.
+- `gap-3` — spacing between flex children without adding margin to individual elements. Cleaner than per-element margins.
+- `flex-1` — the element takes all remaining space after other children fill their natural width. Makes the whole `<Link>` area tappable on mobile, not just the text.
+- `overflow-y-auto` only activates when the element has a fixed height — without `height` set, the div just grows with content and the page scrolls instead. Will matter in Phase 12 when panels get fixed heights.
+- `<Link>` renders as an `<a>` tag — Tailwind classes apply to it exactly like any other element. You can make it look like a button with border + padding classes.
+- Route paths must match exactly what's defined in `App.tsx` — `"/"` works for the list, `"/connections"` does not exist as a route.
+**Quiz answers:**
+- Q1: `md:` breakpoint is 768px — roughly iPad portrait width, enough horizontal space for one-row header layout.
+- Q2: `overflow-y-auto` on the panel div doesn't activate because the div has no fixed height — it grows with content. The page itself scrolls. Will activate in Phase 12 when panels become fixed-height.
+- Q3: Back button links to `"/"` not `"/connections"` because the connections list route is defined as `"/"` in App.tsx. `"/connections"` is not a defined route.
+**Decisions made:** Mobile panels are not `fixed` — they flow naturally. `overflow-y-auto` kept for Phase 12. Back button links to `"/"`. Plain CSS nav/connection rules fully replaced with Tailwind.
+**Questions / blockers for next time:** Phase 11 good enough for now. Next: Phase 12 — Tablet/Desktop responsive layout (master-detail panels).
+
+---
+
 *(Copy the session template above for each new session)*
 
 ---
