@@ -32,7 +32,7 @@ const Contact = ({ filteredConnections, setConnections }: ContactProps ): React.
                     <Button onClick={() => handleDelete(contact.id)}>Delete Contact</Button>
                 </div>
             ))
-        ) : ( <p>No data...</p> )
+        ) : ( <p>Contact not found! Try another search</p> )
         }
         </>
     )
