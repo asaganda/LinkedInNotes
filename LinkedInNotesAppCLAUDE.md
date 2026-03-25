@@ -209,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 10 complete. Next: Phase 11 — Mobile UI.
+**Currently working on:** Phase 11 — Mobile UI. Tickets 11a (header two-row layout) and 11b (port connection list/detail CSS to Tailwind) complete. Working on Ticket 11c — style connection list cards.
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -235,3 +235,4 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 ### Known Issues in Current Code
 - Components are flat in `src/` instead of organized into `pages/` and `components/`
 - Name/jobTitle inline error messages don't clear when user starts typing to fix them (parked from Ticket 10b — revisit later)
+- Avatar image hardcoded to "Default" — should use contact's name for initials, and eventually use a real photo URL per connection (parked — revisit in a later phase)

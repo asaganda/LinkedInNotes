@@ -7,10 +7,6 @@ interface ContactProps {
     setConnections: (value: Connection[]) => void
 }
 
-const divStyle = {
-    border: "5px solid black"
-}
-
 const Contact = ({ filteredConnections, setConnections }: ContactProps ): React.JSX.Element => {
 
     const handleDelete = (id: string): void => {
@@ -23,11 +19,13 @@ const Contact = ({ filteredConnections, setConnections }: ContactProps ): React.
         <>
         {filteredConnections.length > 0 ? (
             filteredConnections.map(contact => (
-                <div style={divStyle} key={contact.id}>
-                    <Link to={`/connections/${contact.id}`}>
-                        <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555"/>
-                        <p>{contact.name}</p>
-                        <p>{contact.jobTitle}</p>
+                <div className='flex items-center p-3 border-b-2 border-b-gray-200' key={contact.id}>
+                    <Link to={`/connections/${contact.id}`} className='flex items-center gap-3 flex-1'>
+                        <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className='rounded-full'/>
+                        <div className='flex flex-col'>
+                            <p>{contact.name}</p>
+                            <p>{contact.jobTitle}</p>
+                        </div>
                     </Link>
                     <Button onClick={() => handleDelete(contact.id)}>Delete Contact</Button>
                 </div>
