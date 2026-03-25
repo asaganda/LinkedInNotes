@@ -122,24 +122,42 @@ src/
 
 ## 📱 UI Layout & Wireframes
 
-**Mobile-first.** Design and build for mobile screens first. The app should also work on tablet and desktop but wireframes have only been sketched for mobile at this stage — tablet/desktop layouts to be defined later.
+**Mobile-first.** Design and build for mobile screens first, then layer in tablet/desktop layout.
 
-**Chosen layout: Two separate screens (standard mobile navigation pattern)**
+---
 
-### Screen 1 — Connections List (`/connections`)
-- Header with search bar and an add/new connection button (top right)
-- Scrollable list of connection rows
+### Mobile Layout (Phase 11 target)
+
+**Two separate full-screen views (standard mobile navigation pattern)**
+
+#### Screen 1 — Connections List (`/connections`)
+- **Header — two rows:**
+  - Row 1: App title ("LinkedIn Notes" or similar) on its own line
+  - Row 2: Search bar + "+ New Contact" button side by side
+- Scrollable list of connection rows below the header
 - Each row shows: avatar circle, connection name, job title/company
 - Tapping a row navigates to the Connection Detail screen
 
-### Screen 2 — Connection Detail (`/connections/:id`)
-- Header with a back button to return to the list
-- Avatar + connection info (name, job title, company) at the top
-- Single note displayed below (MVP: one note per connection, may expand to multiple later)
+#### Screen 2 — Connection Detail (`/connections/:id`)
+- **Back button** at the very top of the screen, above the connection info — taps back to the list
+- Avatar + connection info (name, job title, company) below the back button
+- Single note displayed below (MVP: one note per connection)
 - Actions: add/edit note, delete note
 
-**Why this layout was chosen over the alternative:**
-A master-detail layout (both panels on one screen) was considered but rejected — it's harder to build, requires more complex state management, and feels cramped on mobile. The two-screen approach maps directly to the route structure already defined, keeps each screen focused on one job, and follows standard mobile UX patterns users already understand.
+---
+
+### Tablet/Desktop Layout (Phase 12 target)
+
+**Master-detail: both panels visible side by side**
+
+- **Left panel (~30%):** Connections list — always visible, never disappears
+- **Right panel (~70%):** Connection detail
+  - When a connection IS selected: shows that connection's detail view (no back button needed — list is still visible)
+  - When NO connection is selected: empty state with a placeholder message, e.g. "Select a connection to view details"
+- **Selected state:** the active connection in the left list is visually highlighted so it's obvious which one is being viewed
+- Mobile navigation (back button, full-screen detail) only applies on small screens — hidden on tablet/desktop
+
+**Breakpoint approach:** mobile-first with Tailwind responsive prefixes (`md:`, `lg:`) to switch layouts at the appropriate screen width.
 
 ---
 
@@ -191,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Ticket 8c complete (edit note). Phase 8 in progress — next: delete note (Ticket 8d).
+**Currently working on:** Phase 10 complete. Next: Phase 11 — Mobile UI.
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -206,10 +224,14 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] Note per connection (read) — MVP: one note per connection, displayed on ConnectionDetail page via `getNoteByConnectionId`
 - [x] Add note (create) — textarea + Save button in ConnectionDetail, `handleSave` builds Note object and calls `saveNote()`, `useState` for note triggers re-render to display saved note
 - [x] Edit note (update) — inline edit: clicking `<p>` switches to textarea pre-filled with note body, `handleEditSave` uses spread + `updateNote()` to persist, `setNote()` to update UI, `setIsEditing(false)` to exit edit mode
-- [ ] Delete note (delete)
-- [ ] Search/filter connections
-- [ ] Polish + edge cases (empty states, validation)
+- [x] Delete note (delete)
+- [x] Search/filter connections
+- [x] Polish + edge cases (empty states, validation)
 - [x] React Router setup — BrowserRouter in main.tsx, Routes/Route in App.tsx, declarative mode
+- [ ] Mobile UI — header layout, back button, spacing, typography (Phase 11)
+- [ ] Tablet/Desktop responsive layout — master-detail panels, selected state highlight, empty right panel (Phase 12)
+- [ ] shadcn/ui component upgrades (Phase 13 — deferred)
 
 ### Known Issues in Current Code
 - Components are flat in `src/` instead of organized into `pages/` and `components/`
+- Name/jobTitle inline error messages don't clear when user starts typing to fix them (parked from Ticket 10b — revisit later)

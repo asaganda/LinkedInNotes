@@ -20,6 +20,9 @@ The order below is intentional — each phase depends on the previous one being 
 | 8 | Add / edit / delete notes | Repeat CRUD pattern but for a related model |
 | 9 | Search | Filter over existing data — no new storage logic needed |
 | 10 | Polish | Empty states, validation, UX edge cases |
+| 11 | Mobile UI | Make the two screens look and feel like a real mobile app |
+| 12 | Tablet/Desktop responsive layout | Master-detail panel layout — list stays visible, detail opens on right |
+| 13 | shadcn/ui component upgrades | Swap raw elements for richer components where it's a clean win (deferred — decide after Phase 12) |
 
 ---
 

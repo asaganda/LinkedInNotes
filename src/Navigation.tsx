@@ -12,17 +12,14 @@ const Navigation = ({ dialogOpen, setDialogOpen, searchQuery, setSearchQuery }: 
         setDialogOpen(!dialogOpen)
     }
 
-    const inputStyle = {
-        backgroundColor: "white"
-    }
     return (
-        <header>
-            <nav>
-                <div className="nav-title">
+        <header className="fixed w-full bg-blue-400 z-10">
+            <nav className="flex flex-col md:flex-row justify-between items-center">
+                <div className="p-1">
                     <span className="text-white">LinkedIn Connections</span>
                 </div>
-                <input id="searchQuery" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search" style={inputStyle}/>
-                <div className="nav-contact">
+                <div className="p-1">
+                    <input className="bg-white" id="searchQuery" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search"/>
                     <Button variant="outline" size="lg" onClick={ handleClick}>+ New Contact</Button>
                 </div>
             </nav>
