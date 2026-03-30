@@ -6,21 +6,38 @@ import { Button } from "./components/ui/button";
 import type { Note } from "./models/note";
 import { deleteNote } from "./storage/noteRepo";
 
-const ConnectionDetail = () => {
+type ConnectionDetailProps = {
+    selectedId?: string,
+    isDesktop?: boolean
+}
+
+const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => {
     const [noteString, setNoteString] = useState('')
     const { id } = useParams();
-    const [note, setNote] = useState<Note | undefined>(id ? getNoteByConnectionId(id) : undefined)
+    const activeId = selectedId || id
+    const [note, setNote] = useState<Note | undefined>(activeId ? getNoteByConnectionId(activeId) : undefined)
     const [isEditing, setIsEditing] = useState(false)
 
-    if (id === undefined) {
-        return <h2>Connection not found.</h2>
+    if (activeId === undefined && isDesktop) {
+        return (
+            <div className="md:pt-24">
+                <h2>Select a Connection</h2>
+            </div>
+        )
     }
-    const connection = getConnectionById(id)
+    if (activeId === undefined && !isDesktop) {
+        return (
+            <div className="md:pt-24">
+                <h2>Connection not found</h2>
+            </div>
+        )
+    }
+    const connection = getConnectionById(activeId)
 
     const handleSave = () => {
         const newNote: Note = {
             id: crypto.randomUUID(),
-            connectionId: id,
+            connectionId: activeId,
             body: noteString,
             createdAt: new Date().toLocaleString()
         }
@@ -56,7 +73,7 @@ const ConnectionDetail = () => {
     return (
         <>
             <div className="pt-24 overflow-y-auto">
-                <Link className="inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md" to="/">Back</Link>
+                <Link className="inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md md:hidden" to="/">Back</Link>
                 {connection &&
                     <div className="flex flex-col items-center mb-3">
                         <div className="flex items-center gap-3 mb-3">
@@ -75,7 +92,9 @@ const ConnectionDetail = () => {
                     </div>
                 }
                 {!connection && 
-                    <p>Connection not found.</p>
+                    <div className="">
+                        <p>Connection not found.</p>
+                    </div>
                 }
                 {note && 
                     <div className="flex flex-col items-center mb-3">

@@ -7,7 +7,7 @@ import ConnectionDetail from './ConnectionDetail'
 import type { Connection } from './models/connection'
 import { getAllConnections } from './storage/connectionRepo'
 import fakeData from './placeholderdata.json'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useMatch } from 'react-router-dom'
 
 function App() {
   if (localStorage.getItem('connections') === null) {
@@ -23,15 +23,29 @@ function App() {
       connection.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
     )
   
+    const match = useMatch('/connections/:id')
+    const selectedId = match?.params.id
 
   return (
     <>
       <Navigation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
       <main>
-        <Routes>
-          <Route path="/" element={<ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>}/>
-          <Route path="/connections/:id" element={<ConnectionDetail/>}/>
-        </Routes>
+        {/* Desktop: always rendered side by side container */}
+        <div className='hidden md:flex'>
+          <div className='md:w-[30%]'>
+            <ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>
+          </div>
+          <div className='flex-1'>
+            <ConnectionDetail selectedId={selectedId} isDesktop={true}/>
+          </div>
+        </div>
+        {/* Mobile: routing controls what's visible */}
+        <div className='md:hidden'>
+          <Routes>
+            <Route path="/" element={<ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>}/>
+            <Route path="/connections/:id" element={<ConnectionDetail/>}/>
+          </Routes>
+        </div>
             <AddContactForm setConnections={setConnections} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen}/>
       </main>
     </>
