@@ -33,7 +33,7 @@ function App() {
         {/* Desktop: always rendered side by side container */}
         <div className='hidden md:flex'>
           <div className='md:w-[30%]'>
-            <ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>
+            <ConnectionList setConnections={setConnections} filteredConnections={filteredConnections} selectedId={selectedId}/>
           </div>
           <div className='flex-1'>
             <ConnectionDetail selectedId={selectedId} isDesktop={true}/>
@@ -42,7 +42,7 @@ function App() {
         {/* Mobile: routing controls what's visible */}
         <div className='md:hidden'>
           <Routes>
-            <Route path="/" element={<ConnectionList setConnections={setConnections} filteredConnections={filteredConnections}/>}/>
+            <Route path="/" element={<ConnectionList setConnections={setConnections} filteredConnections={filteredConnections} selectedId={selectedId}/>}/>
             <Route path="/connections/:id" element={<ConnectionDetail/>}/>
           </Routes>
         </div>
