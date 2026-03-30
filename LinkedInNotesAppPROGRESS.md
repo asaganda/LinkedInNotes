@@ -356,6 +356,28 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 15 — 2026-03-30
+**Ticket worked on:** Tickets 12a–12d — Phase 12 Tablet/Desktop responsive layout
+**What I built:**
+- **12a:** Restructured `App.tsx` with two layout blocks — desktop container (`hidden md:flex`) always renders `ConnectionList` (30%) and `ConnectionDetail` (flex-1) side by side; mobile container (`md:hidden`) wraps `<Routes>` with `path="/"` → `ConnectionList` and `path="/connections/:id"` → `ConnectionDetail`. Added `useMatch('/connections/:id')` in `App.tsx` to extract `selectedId` from the URL and pass it as a prop to the desktop `ConnectionDetail`. Updated `ConnectionDetail` to accept `selectedId?: string` and `isDesktop?: boolean` props, added `activeId = selectedId || id` to serve both desktop (prop) and mobile (`useParams`) contexts.
+- **12b:** Updated the `activeId === undefined` early return in `ConnectionDetail` — when `isDesktop` is true, shows "Select a Connection" placeholder; when false, shows "Connection not found".
+- **12c:** Added `md:hidden` to the Back button `<Link>` in `ConnectionDetail.tsx` — visible on mobile only.
+- **12d:** Passed `selectedId` prop down `App` → `ConnectionList` → `Contact`. In `Contact.tsx`, applied conditional Tailwind class `contact.id === selectedId ? "bg-gray-100" : ""` on the card div to highlight the selected connection.
+**What I learned:**
+- Two layout blocks in `App.tsx` solve the routing vs. responsive layout tension — desktop always renders both panels, mobile uses routing to show one at a time. They're never both visible simultaneously so no duplication problem.
+- `<Routes>` only accepts `<Route>` as direct children — structural divs must wrap `<Routes>`, not live inside it.
+- `useParams()` outside a matching `<Route>` returns `undefined` for the param — it needs a route definition to parse the URL pattern. Solved by using `useMatch` in the parent (`App.tsx`) and passing `selectedId` as a prop instead.
+- `activeId = selectedId || id` — one line to serve both contexts. Desktop gets `selectedId` from props, mobile gets `id` from `useParams`. `||` falls back to the second value if the first is falsy.
+- Conditional Tailwind classes — `contact.id === selectedId` evaluates to `true` for exactly one card (UUIDs are unique), so only that card gets the highlight class. All others get `""`.
+- Data always flows parent → child. `isDesktop` and `selectedId` are declared where the knowledge exists (`App.tsx`) and passed down — never the other way.
+**Quiz answers:**
+- Q1: Two layout blocks exist because desktop needs both panels always visible (routing can't do this alone) while mobile needs one panel at a time (routing handles this). CSS visibility (`hidden`/`md:hidden`) keeps them from conflicting.
+- Q2: Only one card gets highlighted because `selectedId` is a single UUID and `contact.id === selectedId` can only be `true` for the one card whose id matches.
+**Decisions made:** `useMatch` in `App.tsx` for desktop `selectedId`. `activeId = selectedId || id` in `ConnectionDetail` to handle both layouts. `isDesktop` prop to differentiate empty state messages. Selected card highlight uses `bg-gray-100`.
+**Questions / blockers for next time:** Phase 12 complete. Next: Phase 13 — shadcn/ui component upgrades (deferred — decide whether to proceed).
+
+---
+
 ### Session 14 — 2026-03-25
 **Ticket worked on:** Tickets 11a–11e — Phase 11 Mobile UI
 **What I built:**

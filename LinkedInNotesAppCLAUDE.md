@@ -209,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 11 complete (mobile UI). Next: Phase 12 — Tablet/Desktop responsive layout.
+**Currently working on:** Phase 12 complete (tablet/desktop responsive layout). Next: Phase 13 — shadcn/ui component upgrades (deferred — decide whether to proceed).
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -228,8 +228,8 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] Search/filter connections
 - [x] Polish + edge cases (empty states, validation)
 - [x] React Router setup — BrowserRouter in main.tsx, Routes/Route in App.tsx, declarative mode
-- [ ] Mobile UI — header layout, back button, spacing, typography (Phase 11)
-- [ ] Tablet/Desktop responsive layout — master-detail panels, selected state highlight, empty right panel (Phase 12)
+- [x] Mobile UI — header layout, back button, spacing, typography (Phase 11)
+- [x] Tablet/Desktop responsive layout — master-detail panels, selected state highlight, empty right panel (Phase 12)
 - [ ] shadcn/ui component upgrades (Phase 13 — deferred)
 
 ### Known Issues in Current Code
