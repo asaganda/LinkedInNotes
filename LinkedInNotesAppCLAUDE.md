@@ -209,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 12 complete (tablet/desktop responsive layout). Next: Phase 13 — shadcn/ui component upgrades (deferred — decide whether to proceed).
+**Currently working on:** Phase 13 complete (shadcn/ui component upgrades). App is functionally done. Decide what comes next.
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)

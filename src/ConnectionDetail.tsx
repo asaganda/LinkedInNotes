@@ -3,8 +3,10 @@ import { getConnectionById } from "./storage/connectionRepo";
 import { getNoteByConnectionId, saveNote, updateNote } from "./storage/noteRepo";
 import { useState } from "react";
 import { Button } from "./components/ui/button";
+import { Textarea } from "./components/ui/textarea";
 import type { Note } from "./models/note";
 import { deleteNote } from "./storage/noteRepo";
+import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 
 type ConnectionDetailProps = {
     selectedId?: string,
@@ -18,14 +20,13 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
     const [note, setNote] = useState<Note | undefined>(activeId ? getNoteByConnectionId(activeId) : undefined)
     const [isEditing, setIsEditing] = useState(false)
 
-    if (activeId === undefined && isDesktop) {
+    if (activeId === undefined && isDesktop) { // Desktop, no connection selected yet
         return (
             <div className="md:pt-24">
                 <h2>Select a Connection</h2>
             </div>
         )
-    }
-    if (activeId === undefined && !isDesktop) {
+    } else if (activeId === undefined) { // Any other case where activeId is undefined
         return (
             <div className="md:pt-24">
                 <h2>Connection not found</h2>
@@ -77,7 +78,10 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
                 {connection &&
                     <div className="flex flex-col items-center mb-3">
                         <div className="flex items-center gap-3 mb-3">
-                            <img src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className="rounded-full"/>
+                            <Avatar>
+                                <AvatarImage src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className="rounded-full"/>
+                                <AvatarFallback>DE</AvatarFallback>
+                            </Avatar>
                             <div className="flex flex-col">
                                 <p className="font-bold">{connection.name}</p>
                                 <p className="text-sm text-gray-500">{connection.jobTitle}</p>
@@ -109,14 +113,14 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
                 }
                 {note && isEditing &&
                     <div className="flex flex-col items-center w-80">
-                        <textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
+                        <Textarea id="noteTextArea" onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></Textarea>
                         <Button variant="outline" size="sm" onClick={ handleEditSave}>Save Note</Button>
                     </div>
                 }
                 {!note && 
                     <>
                     <p>No note written yet.</p>
-                    <textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></textarea>
+                    <Textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></Textarea>
                     <Button variant="outline" size="sm" onClick={ handleSave}>Save Note</Button>
                     </>
                 }

@@ -403,6 +403,27 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 16 — 2026-03-31
+**Ticket worked on:** Tickets 13a–13b — Phase 13 shadcn/ui component upgrades; also fixed TypeScript narrowing bug in ConnectionDetail
+**What I built:**
+- **TypeScript fix:** Combined two separate `if` statements (checking `activeId === undefined && isDesktop` and `activeId === undefined && !isDesktop`) into an `if / else if` block. This gives TypeScript a single narrowing path so it knows `activeId` is a `string` by line 35. The `else if` only needs `activeId === undefined` — no need to check `!isDesktop` because reaching that branch already implies `isDesktop` is false.
+- **13a:** Installed shadcn `Textarea` component (`npx shadcn@latest add textarea`). Replaced both raw `<textarea>` elements in `ConnectionDetail.tsx` with `<Textarea>`. Imported from `"./components/ui/textarea"`. Props (`onChange`, `value`, `placeholder`) unchanged — `Textarea` is a thin wrapper that spreads all props onto the native `<textarea>` element.
+- **13b:** Installed shadcn `Avatar` component (`npx shadcn@latest add avatar`). Replaced hardcoded `<img>` avatars in both `Contact.tsx` and `ConnectionDetail.tsx` with `<Avatar>` + `<AvatarImage>` + `<AvatarFallback>`. Imported all three from `"./components/ui/avatar"`.
+- **13c:** Skipped — decided Badge component is not a good fit for displaying connection fields (company, LinkedIn, phone, email). Badge is for short status labels, not data fields. Plain `<p>` tags kept.
+**What I learned:**
+- TypeScript's type narrowing works per `if` block — two separate `if` statements each checking different conditions don't combine into a single narrowing conclusion. An `if / else if` gives TypeScript a clear single path to narrow through.
+- `else if` branch doesn't need to repeat conditions already implied — if the first `if` fails and you check the same base condition again in `else if`, any additional conditions from the first branch are already ruled out.
+- shadcn components are thin wrappers around native HTML elements — they spread all props onto the underlying element, so any prop the native element accepts works automatically.
+- `AvatarFallback` shows when the image URL fails to load — always provide a fallback so users see initials or a placeholder instead of a broken image.
+- Choosing the right component matters — don't use a component just to tick a box. Badge is for status labels, not data display. Keeping plain `<p>` tags was the right call.
+**Quiz answers:**
+- Q1: `Textarea` props work the same as raw `<textarea>` because shadcn's `Textarea` is a wrapper that renders a native `<textarea>` and spreads all props onto it.
+- Q2: `AvatarFallback` renders when the image fails to load — it shows initials or a placeholder so the UI never shows a broken image.
+**Decisions made:** Badge skipped for connection fields — not the right component. `Textarea` and `Avatar` swapped in. TypeScript narrowing fixed with `if / else if`.
+**Questions / blockers for next time:** Phase 13 complete. App is functionally done. Decide what comes next — new project or extend this one.
+
+---
+
 *(Copy the session template above for each new session)*
 
 ---
