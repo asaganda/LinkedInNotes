@@ -73,8 +73,8 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
 
     return (
         <>
-            <div className="pt-24 overflow-y-auto">
-                <Link className="inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md md:hidden" to="/">Back</Link>
+            <div className="flex flex-col items-center pt-24 overflow-y-auto">
+                <Link className="inline-flex items-center text-sm font-medium text-blue-600 p-2 border border-blue-600 rounded-md md:hidden self-start" to="/">Back</Link>
                 {connection &&
                     <div className="flex flex-col items-center mb-3">
                         <div className="flex items-center gap-3 mb-3">
@@ -118,11 +118,11 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
                     </div>
                 }
                 {!note && 
-                    <>
+                    <div className="flex flex-col w-[320px] items-center">
                     <p>No note written yet.</p>
                     <Textarea onChange={e => setNoteString(e.target.value)} value={noteString} placeholder="type note here"></Textarea>
                     <Button variant="outline" size="sm" onClick={ handleSave}>Save Note</Button>
-                    </>
+                    </div>
                 }
             </div>
         </>

@@ -32,7 +32,7 @@ function App() {
       <main>
         {/* Desktop: always rendered side by side container */}
         <div className='hidden md:flex'>
-          <div className='md:w-[30%]'>
+          <div className='md:w-[35%]'>
             <ConnectionList setConnections={setConnections} filteredConnections={filteredConnections} selectedId={selectedId}/>
           </div>
           <div className='flex-1'>
