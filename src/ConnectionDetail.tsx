@@ -7,6 +7,7 @@ import { Textarea } from "./components/ui/textarea";
 import type { Note } from "./models/note";
 import { deleteNote } from "./storage/noteRepo";
 import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
+import getInitials from "./utils/getInitials";
 
 type ConnectionDetailProps = {
     selectedId?: string,
@@ -79,8 +80,8 @@ const ConnectionDetail = ({ selectedId, isDesktop }: ConnectionDetailProps ) => 
                     <div className="flex flex-col items-center mb-3">
                         <div className="flex items-center gap-3 mb-3">
                             <Avatar>
-                                <AvatarImage src="https://ui-avatars.com/api/?name=Default&size=50&background=ccc&color=555" className="rounded-full"/>
-                                <AvatarFallback>DE</AvatarFallback>
+                                <AvatarImage src="" className="rounded-full"/>
+                                <AvatarFallback>{getInitials(connection.name)}</AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col">
                                 <p className="font-bold">{connection.name}</p>

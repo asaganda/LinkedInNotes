@@ -209,7 +209,7 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 
 > Update this section at the end of every session.
 
-**Currently working on:** Phase 13 complete (shadcn/ui component upgrades). App is functionally done. Decide what comes next.
+**Currently working on:** Ticket 14a complete. Decide what comes next.
 
 ### Build Checklist
 - [x] Project scaffolded (Vite + React + TypeScript)
@@ -230,9 +230,10 @@ I am using this project to **rebuild and sharpen my development skills**. I am n
 - [x] React Router setup — BrowserRouter in main.tsx, Routes/Route in App.tsx, declarative mode
 - [x] Mobile UI — header layout, back button, spacing, typography (Phase 11)
 - [x] Tablet/Desktop responsive layout — master-detail panels, selected state highlight, empty right panel (Phase 12)
-- [ ] shadcn/ui component upgrades (Phase 13 — deferred)
+- [x] shadcn/ui component upgrades (Phase 13 — Textarea + Avatar swapped in, Badge skipped)
 
 ### Known Issues in Current Code
 - Components are flat in `src/` instead of organized into `pages/` and `components/`
 - Name/jobTitle inline error messages don't clear when user starts typing to fix them (parked from Ticket 10b — revisit later)
-- Avatar image hardcoded to "Default" — should use contact's name for initials, and eventually use a real photo URL per connection (parked — revisit in a later phase)
+- Name/jobTitle inline error messages don't clear when user starts typing to fix them (parked from Ticket 10b — revisit later)
+- `AvatarImage src` is empty — real photo URL per connection to be added in a future phase

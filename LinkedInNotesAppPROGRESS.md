@@ -424,6 +424,23 @@ Work was done across multiple sessions before tracking began. Here's what was bu
 
 ---
 
+### Session 17 — 2026-04-02
+**Ticket worked on:** Ticket 14a — Avatar initials from contact name
+**What I built:**
+- Created `src/utils/getInitials.ts` — pure utility function that takes a `name: string` and returns uppercased initials. Rules: 1 word → first letter; 2 words → first + last letters; 3+ words → first letter of first word + first letter of last word
+- Imported `getInitials` in `Contact.tsx` and passed `contact.name` into `AvatarFallback`
+- Imported `getInitials` in `ConnectionDetail.tsx` and passed `connection.name` into `AvatarFallback`
+- Removed hardcoded `ui-avatars.com` src URL from `AvatarImage` in both components — `AvatarFallback` now always shows until a real photo URL is stored per connection
+**What I learned:**
+- Utility functions — pure functions with no dependency on component state belong in a `utils/` file and are imported directly where needed. One definition, many callers, no duplication.
+- `AvatarFallback` only shows when `AvatarImage` fails to load or `src` is empty — if a valid image URL is always provided, the fallback is never seen.
+- Props are for data and callbacks tied to state, not for pure functions. `getInitials` has no connection to any component or state — passing it as a prop would be unnecessary prop drilling for something that doesn't belong to any component.
+**Quiz answers:**
+- Q1: `getInitials` lives in `utils/` because it's a pure function with no state dependency — imported directly by any component that needs it, no prop drilling required.
+**Decisions made:** `AvatarImage src` left empty for now — real photo URL per connection to be added in a future phase.
+
+---
+
 *(Copy the session template above for each new session)*
 
 ---
