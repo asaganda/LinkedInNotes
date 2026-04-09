@@ -33,7 +33,7 @@ const Contact = ({ filteredConnections, setConnections, selectedId }: ContactPro
                             <p>{contact.jobTitle}</p>
                         </div>
                     </Link>
-                    <Button onClick={() => handleDelete(contact.id)}>Delete Contact</Button>
+                    <Button onClick={() => handleDelete(contact.id)}>Delete</Button>
                 </div>
             ))
         ) : ( <p>Contact not found! Try another search</p> )
