@@ -6,6 +6,12 @@ A personal web app for keeping track of your LinkedIn connections — who they a
 
 LinkedIn doesn't give you a private space to jot down context about your connections. This app fills that gap. Add connections manually, write a note against each one, and search your network by name or job title. Everything is stored locally in your browser — no backend, no account required.
 
+<!-- ## Screenshots
+
+![Mobile view](screenshots/mobile.png)
+![Desktop view](screenshots/desktop.png)
+![Connection detail](screenshots/connection-detail.png) -->
+
 ## Features
 
 - Add, view, and delete connections
