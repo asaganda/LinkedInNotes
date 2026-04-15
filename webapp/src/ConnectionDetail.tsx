@@ -4,10 +4,10 @@ import { getNoteByConnectionId, saveNote, updateNote } from "./storage/noteRepo"
 import { useState } from "react";
 import { Button } from "./components/ui/button";
 import { Textarea } from "./components/ui/textarea";
-import type { Note } from "./models/note";
+import type { Note } from "../../shared/models/note";
 import { deleteNote } from "./storage/noteRepo";
 import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
-import getInitials from "./utils/getInitials";
+import getInitials from "../../shared/utils/getInitials";
 
 type ConnectionDetailProps = {
     selectedId?: string,

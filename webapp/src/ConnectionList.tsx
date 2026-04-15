@@ -1,5 +1,5 @@
 import Contact from './Contact'
-import type { Connection } from './models/connection'
+import type { Connection } from '../../shared/models/connection'
 type ConnectionListProps = {
     setConnections: (value: Connection[] | ((prev: Connection[]) => Connection[])) => void
     filteredConnections: Connection[],

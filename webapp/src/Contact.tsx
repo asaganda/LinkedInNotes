@@ -1,9 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar'
 import { Button } from './components/ui/button'
-import type { Connection } from './models/connection'
+import type { Connection } from '../../shared/models/connection'
 import { deleteConnection } from './storage/connectionRepo'
 import { Link } from 'react-router-dom'
-import getInitials from './utils/getInitials'
+import getInitials from '../../shared/utils/getInitials'
 interface ContactProps {
     filteredConnections: Connection[],
     setConnections: (value: Connection[]) => void,

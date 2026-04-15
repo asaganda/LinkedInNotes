@@ -1,4 +1,4 @@
-import type { Note } from "@/models/note"
+import type { Note } from "../../../shared/models/note"
 
 const getAllNotes = (): Note[] => {
     return JSON.parse(localStorage.getItem('notes') || '[]')

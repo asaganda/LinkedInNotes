@@ -1,0 +1,27 @@
+{
+  "name": "linkedin-notes-extension",
+  "version": "1.0.0",
+  "description": "LinkedIn Notes Chrome Extension",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "wxt": "^0.20.21"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@wxt-dev/module-react": "^1.2.2",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2"
+  }
+}

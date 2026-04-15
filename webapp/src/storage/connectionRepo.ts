@@ -1,4 +1,4 @@
-import type { Connection } from "@/models/connection";
+import type { Connection } from "../../../shared/models/connection";
 
 const getAllConnections = (): Connection[] => {
     const connections: Connection[] = JSON.parse(localStorage.getItem('connections') || '[]');
