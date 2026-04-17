@@ -1,23 +1,32 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Connection } from '../../../../shared/models/connection';
+import type { ScrapedProfileData } from './index';
 import CurrentProfileView from '../../components/CurrentProfileView';
 import AddConnectionForm from '../../components/AddConnectionForm';
 import ConnectionsList from '../../components/ConnectionsList';
 
 interface AppProps {
   linkedinUrl: string;
+  scrapeProfileData: () => ScrapedProfileData;
 }
 
 type PanelView = 'profile' | 'add' | 'list';
 
-const App = ({ linkedinUrl }: AppProps) => {
+const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<PanelView>('profile');
   const [savedConnection, setSavedConnection] = useState<Connection | undefined>(undefined);
+  const scrapedDataRef = useRef<ScrapedProfileData | undefined>(undefined);
 
   const handleSaved = (connection: Connection) => {
     setSavedConnection(connection);
+    scrapedDataRef.current = undefined;
     setView('profile');
+  };
+
+  const handleAddConnection = (scraped: ScrapedProfileData) => {
+    scrapedDataRef.current = scraped;
+    setView('add');
   };
 
   const handleClose = () => {
@@ -117,6 +126,7 @@ const App = ({ linkedinUrl }: AppProps) => {
           ) : view === 'add' ? (
             <AddConnectionForm
               linkedinUrl={linkedinUrl}
+              scrapedData={scrapedDataRef.current}
               onSaved={handleSaved}
               onCancel={() => setView('profile')}
             />
@@ -124,7 +134,8 @@ const App = ({ linkedinUrl }: AppProps) => {
             <CurrentProfileView
               linkedinUrl={linkedinUrl}
               savedConnection={savedConnection}
-              onAddConnection={() => setView('add')}
+              onAddConnection={handleAddConnection}
+              scrapeProfileData={scrapeProfileData}
             />
           )}
         </div>

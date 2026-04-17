@@ -11,10 +11,10 @@ A Chrome browser extension that lets users view and manage notes about their Lin
 - Looks up that person in Supabase by their LinkedIn URL
 - Shows their note (and lets you add/edit/delete it) directly in the popup
 - Optionally shows the full connections list via a toggle
+- Detects when the user is on their LinkedIn connections list page and offers a one-click bulk import
 
 **What this extension does NOT (yet):**
 - Require login / auth (single user MVP, no auth layer)
-- Auto-scrape profile data (user manually adds connections for now)
 - Sync in real-time across open tabs
 - Support Firefox or other browsers (Chrome only for MVP)
 
@@ -26,7 +26,7 @@ A Chrome browser extension that lets users view and manage notes about their Lin
 |---|---|---|
 | Extension Framework | WXT | Handles Manifest V3 boilerplate, file-based entrypoints, HMR dev mode |
 | UI Framework | React | Same as webapp — reuse components |
-| Language | TypeScript | Shared types with webapp via `../shared/` |
+| Language | TypeScript | Shared types with webapp via `../../shared/` |
 | Build Tool | Vite (via WXT) | WXT wraps Vite under the hood |
 | Backend / DB | Supabase | Postgres + REST API, same project as all other clients |
 | UI Components | shadcn/ui + Radix UI | Same as webapp |
@@ -59,11 +59,7 @@ LinkedInNotes/
 extension/
   src/
     entrypoints/
-      popup/
-        index.html
-        main.tsx
-        App.tsx           # Root popup component — owns view mode state
-      content.ts          # Content script — detects LinkedIn profile URL, sends to popup
+      content.ts          # Content script — injects panel, detects URL, scrapes DOM
       background.ts       # Service worker — handles cross-context messaging if needed
     components/
       CurrentProfileView.tsx   # Default view — shows note for current LinkedIn profile
@@ -71,6 +67,8 @@ extension/
       NoteEditor.tsx           # Add/edit/delete note inline
       ConnectionCard.tsx       # Single connection row (adapted from webapp Contact.tsx)
       AddConnectionForm.tsx    # Form to add a new connection (adapted from webapp)
+      EditConnectionForm.tsx   # Phase 12 — edit an existing connection's info
+      ImportBanner.tsx         # Phase 11 — banner shown on LinkedIn connections list page
       # No EmptyState component — extension only activates on linkedin.com/in/* pages
     storage/
       connectionRepo.ts   # Supabase CRUD for connections (mirrors webapp pattern)
@@ -100,6 +98,7 @@ type Connection = {
   linkedinUrl: string
   phone?: string
   email?: string
+  avatarUrl?: string      // Added in Phase 10 — scraped from LinkedIn DOM
   createdAt: string
   updatedAt: string
 }
@@ -114,7 +113,8 @@ type Note = {
 }
 ```
 
-> Note: `createdAt` and `updatedAt` are added here for the Supabase layer even though the webapp MVP omitted them. Supabase can auto-manage these with `default now()` in the schema.
+> `createdAt` and `updatedAt` are managed automatically by Supabase via `default now()` in the schema.
+> `avatarUrl` is optional — connections added before Phase 10 fall back to the initials avatar.
 
 ---
 
@@ -130,6 +130,7 @@ See `schema.sql` at the repo root. Tables:
 - `linkedin_url` text not null unique
 - `phone` text
 - `email` text
+- `avatar_url` text         ← added in Phase 10 (alter table migration)
 - `created_at` timestamptz default now()
 - `updated_at` timestamptz default now()
 
@@ -154,8 +155,6 @@ UI → Repository functions → Supabase client → Supabase DB
 
 Storage lives in `src/storage/` — never call `supabase` directly from components.
 
-The repo function signatures mirror the webapp exactly — the only difference is the implementation (Supabase instead of localStorage).
-
 ---
 
 ## 🖥 Injected Panel UI — Two Modes
@@ -168,8 +167,8 @@ On `linkedin.com/in/*` pages, a small floating button is injected on the side of
 
 - Content script normalises the current page URL
 - Panel looks up the connection in Supabase by `linkedin_url`
-- **If found:** shows connection name, job title, company + their note. Note is editable/deletable inline.
-- **If not found:** shows an "Add this person" button. Clicking opens `AddConnectionForm` pre-filled with the LinkedIn URL.
+- **If found:** shows connection name, job title, company + their note. Note is editable/deletable inline. Edit connection info button available (Phase 12).
+- **If not found:** shows an "Add this person" button. Clicking opens `AddConnectionForm` pre-filled with the LinkedIn URL and any data scraped from the page (Phase 9 onwards).
 
 ### Toggle mode — Full Connections List
 
@@ -185,12 +184,26 @@ Accessed via a toggle button in the panel header.
 
 ## 🔌 Content Script Behaviour
 
-`entrypoints/content.ts` runs on every `linkedin.com/in/*` page.
+`entrypoints/content.ts` runs on `linkedin.com/in/*` pages AND `linkedin.com/mynetwork/invite-connect/connections/`.
 
+**On profile pages (`linkedin.com/in/*`):**
 - Injects the React panel UI into the LinkedIn page DOM using WXT's `createShadowRootUi`
 - Normalises the current page URL: `https://www.linkedin.com/in/username` — strip query params and trailing slashes
 - Passes the normalised URL as a prop to the root `App` component
 - Shadow DOM is used so extension styles don't clash with LinkedIn's styles
+- Phase 8+: uses `MutationObserver` to detect LinkedIn SPA navigation and re-renders with the new URL
+- Phase 9+: scrapes the profile DOM for name, job title, company and passes as props to `App`
+- Phase 10+: also scrapes the profile picture URL from the DOM and passes as a prop
+
+**On the connections list page (`linkedin.com/mynetwork/invite-connect/connections/`):**
+- Phase 11+: injects `ImportBanner` — a subtle banner at the top of the page
+- Banner shows: "Import your connections to LinkedIn Notes?" with a single confirm button
+- On confirm: scrapes all visible connection cards (name + profile image URL only)
+- Auto-scrolls the page to load more connections, scraping each batch as it appears
+- Saves each connection to Supabase, skipping any `linkedinUrl` that already exists
+- Shows live progress in the banner while running ("Importing... 47 added so far")
+- User can leave the tab and let it run — import continues in the background
+- On completion: banner updates to show final summary ("Done — 312 connections imported, 4 skipped")
 
 URL normalisation rule: store and match on `https://www.linkedin.com/in/username` — strip everything after the username slug.
 
@@ -224,7 +237,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Complete — all phases shipped
+**Currently working on:** Phase 9 complete — ready for Phase 10
 
 ### Build Checklist
 
@@ -281,11 +294,73 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] Clicking a connection shows their note inline
   - [x] Toggle back to Current Profile View works
 
+- [x] **Phase 8** — SPA navigation fix
+  - [x] `MutationObserver` added to content script watching for LinkedIn URL changes
+  - [x] Observer fires when `window.location.href` changes without a full page reload
+  - [x] On navigation detected: tears down old UI, mounts fresh `App` with new URL prop
+  - [x] `isProfileUrl` guard ensures observer only reacts on `/in/*` URLs (ignores feed, messaging, etc.)
+  - [x] Observer disconnected on `ctx.onInvalidated()` (extension context teardown)
+  - [x] Tested by clicking between multiple LinkedIn profiles — panel updates correctly each time (verify manually)
+
+- [x] **Phase 9** — DOM scraping to auto-fill Add Connection form
+  - [x] `scrapeProfileData()` function added to content script — reads the LinkedIn DOM at call time, returns `{ name, jobTitle, company }`
+  - [x] Scraping only runs when the user clicks "Add this person" — not on page load, not for profiles already in the DB
+  - [x] All DOM selectors documented with a comment explaining what each one targets
+  - [x] `scrapeProfileData` passed as a function prop from content script → `App` → `CurrentProfileView`
+  - [x] `CurrentProfileView` calls it when the user clicks "Add this person", passes result to `AddConnectionForm`
+  - [x] `AddConnectionForm` accepts scraped fields as optional props and uses them as initial state values
+  - [x] User can edit or clear any pre-filled field before saving — scraping only sets defaults, never locks fields
+  - [x] If a DOM element is not found, that field is left blank — no crash, no error thrown
+  - [x] Tested on a real LinkedIn profile — name, job title, company populate in the form correctly (verify manually)
+
+- [ ] **Phase 10** — Profile picture scraping + avatarUrl
+  - [ ] Content script also scrapes the profile picture URL from the LinkedIn DOM
+  - [ ] `avatarUrl?: string` field added to `Connection` type in `../../shared/models/connection.ts`
+  - [ ] `avatar_url text` column added to Supabase `connections` table — ALTER TABLE migration SQL written and noted for developer to run in Supabase SQL editor
+  - [ ] `connectionRepo.ts` updated to include `avatarUrl` in save and read operations
+  - [ ] `AddConnectionForm` receives scraped `avatarUrl` as a prop and includes it in the saved connection object
+  - [ ] `ConnectionCard` displays `avatarUrl` in the avatar image when present, falls back to initials when not
+  - [ ] `CurrentProfileView` also displays `avatarUrl` when present
+  - [ ] Tested: photo shows for a newly added connection; initials still show for connections added before Phase 10
+
+- [ ] **Phase 11** — Bulk import from LinkedIn connections list page
+  - [ ] Content script extended to also run on `linkedin.com/mynetwork/invite-connect/connections/`
+  - [ ] `ImportBanner` component created — a subtle banner injected at the top of that page
+  - [ ] Banner shows connection count estimate if available from the page, plus a single "Import to LinkedIn Notes" confirm button
+  - [ ] On confirm: content script begins scraping visible connection cards
+  - [ ] Each card scrapes: name and profile image URL only (headline is skipped — too unreliable for job title)
+  - [ ] LinkedIn URL for each connection is constructed from the profile link on each card
+  - [ ] Auto-scroll loop: after scraping visible cards, script scrolls down, waits for new cards to load, scrapes again — repeats until no new cards appear
+  - [ ] Each scraped connection is saved to Supabase immediately (not batched at the end) so progress is preserved if user closes the tab
+  - [ ] Duplicate check: if `linkedinUrl` already exists in Supabase, that connection is skipped silently
+  - [ ] Banner shows live progress counter while running: "Importing... 47 added so far"
+  - [ ] Import runs asynchronously — user can leave the tab or switch tabs and it continues
+  - [ ] On completion: banner updates to final summary — "Done — 312 connections imported, 4 skipped (already existed)"
+  - [ ] `jobTitle` defaults to an empty string for bulk-imported connections (filled in later when user visits their profile page and Phase 9 scraping runs)
+  - [ ] Tested with a real LinkedIn connections list — names and images import correctly, duplicates are skipped
+
+- [ ] **Phase 12** — Edit connection info
+  - [ ] Edit button added to `CurrentProfileView` — visible when a connection is found in Supabase
+  - [ ] Clicking edit opens `EditConnectionForm` inline in the panel, replacing the connection detail view
+  - [ ] `EditConnectionForm` pre-fills all current connection fields: name, jobTitle, company, linkedinUrl, phone, email
+  - [ ] `linkedinUrl` field is read-only in the edit form — it is the unique key and should not be changed
+  - [ ] On save: calls `updateConnection` in `connectionRepo.ts` (write this function if it doesn't exist yet)
+  - [ ] `updateConnection` in Supabase uses an `update` query matched by `id`, and sets `updated_at` to `now()`
+  - [ ] On save success: returns to `CurrentProfileView` showing the updated connection info
+  - [ ] On cancel: returns to `CurrentProfileView` with no changes made
+  - [ ] Validation: name and jobTitle are required — show inline error if blank on save attempt
+  - [ ] `ConnectionCard` in the full connections list also gets an edit button (or edit accessible by clicking into a connection) so connections imported via bulk import can have their details filled in
+  - [ ] Tested: edit a connection, save, confirm updated info appears immediately in the panel
+
+---
+
 ### Known Issues / Deferred
 - No auth — single user only, no row-level security in Supabase for MVP
 - No real-time sync across tabs
-- Avatar photo URLs not implemented (initials fallback only)
 - Error messages on name/jobTitle fields don't clear on typing (inherited from webapp — revisit later)
 - ConnectionsList re-fetches all connections on every mount — needs caching in App.tsx for performance
-- Client-side search loads the full connections list into memory — fine for MVP but won't scale when the extension is published and users have large datasets. Should switch to Supabase-side filtering (ilike query) beyond a certain threshold
-- SPA navigation not handled — navigating between LinkedIn profiles without a full page reload does not update the panel. Needs MutationObserver in content script to detect URL changes and re-render with new URL
+- Client-side search loads the full connections list into memory — fine for MVP but won't scale. Should switch to Supabase-side filtering (ilike query) beyond a certain threshold
+- Phone and email scraping from LinkedIn DOM not implemented — phone/email are sometimes in a "Contact info" popup (not the main DOM) or in the About section. Inconsistent across profiles. Deferred until a reliable scraping approach is identified. For now, user fills these fields manually in the Add Connection form.
+- Job title and company scraping requires Experience section to be in the DOM — LinkedIn lazy-loads it on scroll. If the user hasn't scrolled to it before clicking "Add this person", those fields come back empty. Current fix: tip text below the button tells the user to scroll first. Better fix (Option 4): MutationObserver that waits for the Experience section to appear and updates the form fields once it does. Deferred.
+- Stale connection info not handled — if a saved connection updates their name, job title, or company on LinkedIn, the panel will continue showing the old saved data. No automatic sync or "refresh from LinkedIn" feature exists. Options to address: a manual "re-scrape" button in the panel, or a prompt when the scraped DOM data differs from what's saved. To be planned together.
+- MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.

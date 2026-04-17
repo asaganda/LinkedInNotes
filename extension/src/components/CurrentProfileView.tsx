@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Connection } from '../../../shared/models/connection';
 import type { Note } from '../../../shared/models/note';
+import type { ScrapedProfileData } from '../entrypoints/content/index';
 import { getConnectionByLinkedinUrl } from '../storage/connectionRepo';
 import { getNoteByConnectionId } from '../storage/noteRepo';
 import NoteEditor from './NoteEditor';
@@ -8,7 +9,8 @@ import NoteEditor from './NoteEditor';
 interface CurrentProfileViewProps {
   linkedinUrl: string;
   savedConnection?: Connection;
-  onAddConnection: () => void;
+  onAddConnection: (scraped: ScrapedProfileData) => void;
+  scrapeProfileData: () => ScrapedProfileData;
 }
 
 const s = {
@@ -33,7 +35,7 @@ const s = {
   error: { fontSize: '13px', color: '#ef4444', textAlign: 'center' as const, padding: '16px 0' },
 };
 
-const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection }: CurrentProfileViewProps) => {
+const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData }: CurrentProfileViewProps) => {
   const [connection, setConnection] = useState<Connection | undefined>(savedConnection);
   const [note, setNote] = useState<Note | undefined>(undefined);
   const [loading, setLoading] = useState(!savedConnection);
@@ -81,9 +83,12 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection }: C
     return (
       <div style={s.container}>
         <p style={s.notFoundText}>This person isn't in your connections yet.</p>
-        <button style={s.addBtn} onClick={onAddConnection}>
+        <button style={s.addBtn} onClick={() => onAddConnection(scrapeProfileData())}>
           + Add this person
         </button>
+        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginTop: '10px' }}>
+          Tip: scroll down to the Experience section first to auto-fill job title and company.
+        </p>
       </div>
     );
   }

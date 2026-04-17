@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import type { Connection } from '../../../shared/models/connection';
+import type { ScrapedProfileData } from '../entrypoints/content/index';
 import { saveConnection } from '../storage/connectionRepo';
 
 interface AddConnectionFormProps {
   linkedinUrl: string;
+  scrapedData?: ScrapedProfileData;
   onSaved: (connection: Connection) => void;
   onCancel: () => void;
 }
@@ -53,10 +55,10 @@ const s = {
   submitError: { fontSize: '12px', color: '#ef4444', marginTop: '8px' },
 };
 
-const AddConnectionForm = ({ linkedinUrl, onSaved, onCancel }: AddConnectionFormProps) => {
-  const [name, setName] = useState('');
-  const [jobTitle, setJobTitle] = useState('');
-  const [company, setCompany] = useState('');
+const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddConnectionFormProps) => {
+  const [name, setName] = useState(scrapedData?.name ?? '');
+  const [jobTitle, setJobTitle] = useState(scrapedData?.jobTitle ?? '');
+  const [company, setCompany] = useState(scrapedData?.company ?? '');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({ name: '', jobTitle: '' });
