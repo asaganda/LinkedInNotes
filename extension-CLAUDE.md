@@ -237,7 +237,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 9 complete — ready for Phase 10
+**Currently working on:** Phase 10 complete — ready for Phase 11
 
 ### Build Checklist
 
@@ -313,15 +313,15 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] If a DOM element is not found, that field is left blank — no crash, no error thrown
   - [x] Tested on a real LinkedIn profile — name, job title, company populate in the form correctly (verify manually)
 
-- [ ] **Phase 10** — Profile picture scraping + avatarUrl
-  - [ ] Content script also scrapes the profile picture URL from the LinkedIn DOM
-  - [ ] `avatarUrl?: string` field added to `Connection` type in `../../shared/models/connection.ts`
-  - [ ] `avatar_url text` column added to Supabase `connections` table — ALTER TABLE migration SQL written and noted for developer to run in Supabase SQL editor
-  - [ ] `connectionRepo.ts` updated to include `avatarUrl` in save and read operations
-  - [ ] `AddConnectionForm` receives scraped `avatarUrl` as a prop and includes it in the saved connection object
-  - [ ] `ConnectionCard` displays `avatarUrl` in the avatar image when present, falls back to initials when not
-  - [ ] `CurrentProfileView` also displays `avatarUrl` when present
-  - [ ] Tested: photo shows for a newly added connection; initials still show for connections added before Phase 10
+- [x] **Phase 10** — Profile picture scraping + avatarUrl
+  - [x] Content script also scrapes the profile picture URL from the LinkedIn DOM
+  - [x] `avatarUrl?: string` field added to `Connection` type in `../../shared/models/connection.ts`
+  - [x] `avatar_url text` column added to Supabase `connections` table — ALTER TABLE migration SQL written and noted for developer to run in Supabase SQL editor
+  - [x] `connectionRepo.ts` updated to include `avatarUrl` in save and read operations
+  - [x] `AddConnectionForm` receives scraped `avatarUrl` as a prop and includes it in the saved connection object
+  - [x] `ConnectionCard` displays `avatarUrl` in the avatar image when present, falls back to initials when not
+  - [x] `CurrentProfileView` also displays `avatarUrl` when present
+  - [x] Tested: photo shows for a newly added connection; initials still show for connections added before Phase 10
 
 - [ ] **Phase 11** — Bulk import from LinkedIn connections list page
   - [ ] Content script extended to also run on `linkedin.com/mynetwork/invite-connect/connections/`
@@ -364,3 +364,4 @@ The developer will review the code, ask questions, and sign off before the next 
 - Job title and company scraping requires Experience section to be in the DOM — LinkedIn lazy-loads it on scroll. If the user hasn't scrolled to it before clicking "Add this person", those fields come back empty. Current fix: tip text below the button tells the user to scroll first. Better fix (Option 4): MutationObserver that waits for the Experience section to appear and updates the form fields once it does. Deferred.
 - Stale connection info not handled — if a saved connection updates their name, job title, or company on LinkedIn, the panel will continue showing the old saved data. No automatic sync or "refresh from LinkedIn" feature exists. Options to address: a manual "re-scrape" button in the panel, or a prompt when the scraped DOM data differs from what's saved. To be planned together.
 - MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.
+- Avatar URL expiry — LinkedIn CDN URLs for profile photos contain a token (`?e=...&t=...`) that expires after a period of time. A stored `avatarUrl` will eventually 404, causing the avatar to silently fall back to initials. Options to address: re-scrape and update `avatarUrl` on each visit to the profile, or use a proxy/cache layer. Deferred for MVP — fallback to initials is acceptable for now.

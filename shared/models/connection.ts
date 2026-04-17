@@ -6,6 +6,7 @@ export type Connection = {
     linkedinUrl: string
     phone?: string
     email?: string
+    avatarUrl?: string
     createdAt: string
     updatedAt: string
 }

@@ -59,6 +59,7 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
   const [name, setName] = useState(scrapedData?.name ?? '');
   const [jobTitle, setJobTitle] = useState(scrapedData?.jobTitle ?? '');
   const [company, setCompany] = useState(scrapedData?.company ?? '');
+  const avatarUrl = scrapedData?.avatarUrl ?? '';
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({ name: '', jobTitle: '' });
@@ -86,6 +87,7 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
         company: company.trim() || undefined,
         phone: phone.trim() || undefined,
         email: email.trim() || undefined,
+        avatarUrl: avatarUrl || undefined,
       });
       onSaved(saved);
     } catch {

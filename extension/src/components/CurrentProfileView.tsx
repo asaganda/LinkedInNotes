@@ -96,8 +96,25 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
   // Found state
   return (
     <div style={s.container}>
-      <p style={s.name}>{connection.name}</p>
-      <p style={s.meta}>{connection.jobTitle}{connection.company ? ` · ${connection.company}` : ''}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        {connection.avatarUrl ? (
+          <img
+            src={connection.avatarUrl}
+            alt={connection.name}
+            style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+          />
+        ) : (
+          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#0a66c2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: 'white', fontSize: '15px', fontWeight: 700, fontFamily: 'sans-serif' }}>
+              {connection.name.trim().split(' ').map((p: string) => p[0]).filter((_: string, i: number, a: string[]) => i === 0 || i === a.length - 1).join('').toUpperCase()}
+            </span>
+          </div>
+        )}
+        <div>
+          <p style={{ ...s.name, margin: 0 }}>{connection.name}</p>
+          <p style={{ ...s.meta, margin: '2px 0 0 0' }}>{connection.jobTitle}{connection.company ? ` · ${connection.company}` : ''}</p>
+        </div>
+      </div>
 
       <hr style={s.divider} />
 

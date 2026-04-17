@@ -10,6 +10,7 @@ const toConnection = (row: Record<string, string>): Connection => ({
     linkedinUrl: row.linkedin_url,
     phone: row.phone,
     email: row.email,
+    avatarUrl: row.avatar_url,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
 });
@@ -43,6 +44,7 @@ const saveConnection = async (connection: Omit<Connection, 'id' | 'createdAt' | 
             linkedin_url: connection.linkedinUrl,
             phone: connection.phone,
             email: connection.email,
+            avatar_url: connection.avatarUrl,
         })
         .select()
         .single();

@@ -65,7 +65,15 @@ const ConnectionCard = ({ connection, onClick }: ConnectionCardProps) => {
       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'white'; }}
     >
       <div style={s.avatar}>
-        <span style={s.initials}>{getInitials(connection.name)}</span>
+        {connection.avatarUrl ? (
+          <img
+            src={connection.avatarUrl}
+            alt={connection.name}
+            style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
+          />
+        ) : (
+          <span style={s.initials}>{getInitials(connection.name)}</span>
+        )}
       </div>
       <div style={s.info}>
         <p style={s.name}>{connection.name}</p>

@@ -16,6 +16,7 @@ export type ScrapedProfileData = {
   name: string;
   jobTitle: string;
   company: string;
+  avatarUrl: string;
 };
 
 // Reads the LinkedIn profile DOM at call time. Returns empty strings for any
@@ -38,7 +39,11 @@ export const scrapeProfileData = (): ScrapedProfileData => {
     experienceSection?.querySelectorAll('a[href*="linkedin.com/company/"] p')[1]?.textContent?.trim() ?? '';
   const company = rawCompany.split(' ·')[0].trim();
 
-  return { name, jobTitle, company };
+  // Profile photo — the top-card photo container has a stable aria-label="Profile photo"
+  const avatarUrl =
+    document.querySelector('[aria-label="Profile photo"] img')?.getAttribute('src') ?? '';
+
+  return { name, jobTitle, company, avatarUrl };
 };
 
 export default defineContentScript({
@@ -80,7 +85,7 @@ export default defineContentScript({
           append: 'last',
           onMount(container) {
             const root = ReactDOM.createRoot(container);
-            root.render(React.createElement(App, { linkedinUrl: currentUrl }));
+            root.render(React.createElement(App, { linkedinUrl: currentUrl, scrapeProfileData }));
             return root;
           },
         }).then((newUi) => {
