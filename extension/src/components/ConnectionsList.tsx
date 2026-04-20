@@ -5,6 +5,7 @@ import { getAllConnections } from '../storage/connectionRepo';
 import { getNoteByConnectionId } from '../storage/noteRepo';
 import ConnectionCard from './ConnectionCard';
 import NoteEditor from './NoteEditor';
+import EditConnectionForm from './EditConnectionForm';
 
 interface ConnectionsListProps {
   onClose: () => void;
@@ -63,6 +64,7 @@ const ConnectionsList = ({ onClose }: ConnectionsListProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Connection | undefined>(undefined);
+  const [editing, setEditing] = useState(false);
   const [note, setNote] = useState<Note | undefined>(undefined);
   const [noteLoading, setNoteLoading] = useState(false);
 
@@ -91,6 +93,27 @@ const ConnectionsList = ({ onClose }: ConnectionsListProps) => {
     (c.company ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
+  // Edit view — inline within the list panel
+  if (selected && editing) {
+    return (
+      <div style={s.container}>
+        <div style={s.detailHeader}>
+          <button style={s.backBtn} onClick={() => setEditing(false)} aria-label="Back to detail">
+            ←
+          </button>
+          <p style={s.detailName}>Edit Connection</p>
+        </div>
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          <EditConnectionForm
+            connection={selected}
+            onSaved={(updated) => { setSelected(updated); setEditing(false); }}
+            onCancel={() => setEditing(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // Detail view — selected connection + note
   if (selected) {
     return (
@@ -100,6 +123,12 @@ const ConnectionsList = ({ onClose }: ConnectionsListProps) => {
             ←
           </button>
           <p style={s.detailName}>{selected.name}</p>
+          <button
+            onClick={() => setEditing(true)}
+            style={{ marginLeft: 'auto', background: 'none', border: '1px solid #d1d5db', borderRadius: '5px', cursor: 'pointer', fontSize: '11px', color: '#6b7280', padding: '3px 7px', fontFamily: 'sans-serif' }}
+          >
+            Edit
+          </button>
         </div>
         <div style={s.detailBody}>
           <p style={s.detailMeta}>

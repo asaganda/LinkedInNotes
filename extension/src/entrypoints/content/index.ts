@@ -2,12 +2,8 @@ import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root';
 import ReactDOM from 'react-dom/client';
 import React from 'react';
 import App from './App';
-
-const normaliseLinkedinUrl = (url: string): string => {
-  const match = url.match(/https:\/\/www\.linkedin\.com\/in\/([^/?#]+)/);
-  if (!match) return url;
-  return `https://www.linkedin.com/in/${match[1]}`;
-};
+import ImportBanner from '../../components/ImportBanner';
+import normaliseLinkedinUrl from '../../../../shared/utils/normaliseLinkedinUrl';
 
 const isProfileUrl = (url: string): boolean =>
   /https:\/\/www\.linkedin\.com\/in\/[^/?#]+/.test(url);
@@ -47,10 +43,29 @@ export const scrapeProfileData = (): ScrapedProfileData => {
 };
 
 export default defineContentScript({
-  matches: ['https://www.linkedin.com/in/*'],
+  matches: [
+    'https://www.linkedin.com/in/*',
+    'https://www.linkedin.com/mynetwork/invite-connect/connections/*',
+  ],
   cssInjectionMode: 'ui',
 
   async main(ctx) {
+    // Connections list page — inject ImportBanner and stop
+    if (window.location.href.includes('/mynetwork/invite-connect/connections')) {
+      await createShadowRootUi(ctx, {
+        name: 'linkedin-notes-import-banner',
+        position: 'inline',
+        anchor: 'body',
+        append: 'last',
+        onMount(container) {
+          const root = ReactDOM.createRoot(container);
+          root.render(React.createElement(ImportBanner));
+          return root;
+        },
+      }).then((ui) => ui.mount());
+      return;
+    }
+
     let currentUrl = normaliseLinkedinUrl(window.location.href);
 
     const ui = await createShadowRootUi(ctx, {

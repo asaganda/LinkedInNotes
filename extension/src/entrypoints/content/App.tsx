@@ -3,6 +3,7 @@ import type { Connection } from '../../../../shared/models/connection';
 import type { ScrapedProfileData } from './index';
 import CurrentProfileView from '../../components/CurrentProfileView';
 import AddConnectionForm from '../../components/AddConnectionForm';
+import EditConnectionForm from '../../components/EditConnectionForm';
 import ConnectionsList from '../../components/ConnectionsList';
 
 interface AppProps {
@@ -10,12 +11,13 @@ interface AppProps {
   scrapeProfileData: () => ScrapedProfileData;
 }
 
-type PanelView = 'profile' | 'add' | 'list';
+type PanelView = 'profile' | 'add' | 'edit' | 'list';
 
 const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<PanelView>('profile');
   const [savedConnection, setSavedConnection] = useState<Connection | undefined>(undefined);
+  const [connectionToEdit, setConnectionToEdit] = useState<Connection | undefined>(undefined);
   const scrapedDataRef = useRef<ScrapedProfileData | undefined>(undefined);
 
   const handleSaved = (connection: Connection) => {
@@ -29,12 +31,23 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
     setView('add');
   };
 
+  const handleEdit = (connection: Connection) => {
+    setConnectionToEdit(connection);
+    setView('edit');
+  };
+
+  const handleEditSaved = (updated: Connection) => {
+    setSavedConnection(updated);
+    setConnectionToEdit(undefined);
+    setView('profile');
+  };
+
   const handleClose = () => {
     setIsOpen(false);
     setView('profile');
   };
 
-  const headerTitle = view === 'add' ? 'Add Connection' : 'LinkedIn Notes';
+  const headerTitle = view === 'add' ? 'Add Connection' : view === 'edit' ? 'Edit Connection' : 'LinkedIn Notes';
 
   return (
     <div style={{ position: 'fixed', bottom: '80px', right: '20px', zIndex: 9999 }}>
@@ -65,6 +78,23 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
               {headerTitle}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {/* Import All — redirects to connections list page to trigger bulk import */}
+              <button
+                onClick={() => { window.location.href = 'https://www.linkedin.com/mynetwork/invite-connect/connections/'; }}
+                title="Import all connections"
+                style={{
+                  background: 'none',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  color: '#6b7280',
+                  padding: '3px 7px',
+                  fontFamily: 'sans-serif',
+                }}
+              >
+                Import
+              </button>
               {/* Toggle between profile and full list — only visible on profile/add views */}
               {view !== 'list' && (
                 <button
@@ -130,12 +160,19 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
               onSaved={handleSaved}
               onCancel={() => setView('profile')}
             />
+          ) : view === 'edit' && connectionToEdit ? (
+            <EditConnectionForm
+              connection={connectionToEdit}
+              onSaved={handleEditSaved}
+              onCancel={() => setView('profile')}
+            />
           ) : (
             <CurrentProfileView
               linkedinUrl={linkedinUrl}
               savedConnection={savedConnection}
               onAddConnection={handleAddConnection}
               scrapeProfileData={scrapeProfileData}
+              onEdit={handleEdit}
             />
           )}
         </div>

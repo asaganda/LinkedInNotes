@@ -196,14 +196,15 @@ Accessed via a toggle button in the panel header.
 - Phase 10+: also scrapes the profile picture URL from the DOM and passes as a prop
 
 **On the connections list page (`linkedin.com/mynetwork/invite-connect/connections/`):**
-- Phase 11+: injects `ImportBanner` — a subtle banner at the top of the page
-- Banner shows: "Import your connections to LinkedIn Notes?" with a single confirm button
-- On confirm: scrapes all visible connection cards (name + profile image URL only)
-- Auto-scrolls the page to load more connections, scraping each batch as it appears
-- Saves each connection to Supabase, skipping any `linkedinUrl` that already exists
-- Shows live progress in the banner while running ("Importing... 47 added so far")
-- User can leave the tab and let it run — import continues in the background
-- On completion: banner updates to show final summary ("Done — 312 connections imported, 4 skipped")
+- Phase 11+: injects `ImportBanner` as a floating card (bottom-right, same position as the profile panel)
+- User arrives here by clicking "Import All" in the panel header on a profile page
+- Banner has three states: confirmation → progress → completion
+- Confirmation: "Import your connections to LinkedIn Notes?" with [Start Import] and [Dismiss] buttons
+- On [Start Import]: scrapes visible connection cards (name, avatar URL, LinkedIn URL), auto-scrolls to load more, repeats until done
+- Each connection saved to Supabase immediately — progress preserved if tab is closed
+- Duplicates skipped silently
+- Progress: "Importing... 47 saved" live counter
+- Completion: "Done — 312 imported, 4 skipped" with [Close] button
 
 URL normalisation rule: store and match on `https://www.linkedin.com/in/username` — strip everything after the username slug.
 
@@ -237,7 +238,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 10 complete — ready for Phase 11
+**Currently working on:** Phase 12 complete — ready for Phase 13
 
 ### Build Checklist
 
@@ -323,34 +324,42 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] `CurrentProfileView` also displays `avatarUrl` when present
   - [x] Tested: photo shows for a newly added connection; initials still show for connections added before Phase 10
 
-- [ ] **Phase 11** — Bulk import from LinkedIn connections list page
-  - [ ] Content script extended to also run on `linkedin.com/mynetwork/invite-connect/connections/`
-  - [ ] `ImportBanner` component created — a subtle banner injected at the top of that page
-  - [ ] Banner shows connection count estimate if available from the page, plus a single "Import to LinkedIn Notes" confirm button
-  - [ ] On confirm: content script begins scraping visible connection cards
-  - [ ] Each card scrapes: name and profile image URL only (headline is skipped — too unreliable for job title)
-  - [ ] LinkedIn URL for each connection is constructed from the profile link on each card
-  - [ ] Auto-scroll loop: after scraping visible cards, script scrolls down, waits for new cards to load, scrapes again — repeats until no new cards appear
-  - [ ] Each scraped connection is saved to Supabase immediately (not batched at the end) so progress is preserved if user closes the tab
-  - [ ] Duplicate check: if `linkedinUrl` already exists in Supabase, that connection is skipped silently
-  - [ ] Banner shows live progress counter while running: "Importing... 47 added so far"
-  - [ ] Import runs asynchronously — user can leave the tab or switch tabs and it continues
-  - [ ] On completion: banner updates to final summary — "Done — 312 connections imported, 4 skipped (already existed)"
-  - [ ] `jobTitle` defaults to an empty string for bulk-imported connections (filled in later when user visits their profile page and Phase 9 scraping runs)
-  - [ ] Tested with a real LinkedIn connections list — names and images import correctly, duplicates are skipped
+- [x] **Phase 11** — Bulk import from LinkedIn connections list page
+  - [x] **Entry point:** "Import" button added to the panel header in `App.tsx` — redirects to connections list page
+  - [x] Clicking "Import" redirects the tab to `https://www.linkedin.com/mynetwork/invite-connect/connections/`
+  - [x] Content script extended to also match `linkedin.com/mynetwork/invite-connect/connections/` — injects `ImportBanner` component on that page
+  - [x] `ImportBanner` is a floating card (bottom-right, same position as the panel on profile pages) — NOT injected into the LinkedIn page body
+  - [x] **Confirmation state:** banner shows "Import your connections to LinkedIn Notes?" with [Start Import] and [Dismiss] buttons
+  - [x] On [Start Import]: content script begins scraping visible connection cards
+  - [x] On [Dismiss]: banner disappears
+  - [x] Each card scrapes: name, profile image URL, and LinkedIn profile URL
+  - [x] Selectors (confirmed from DOM snapshot):
+    - Profile URL: `href` on `a[href*="linkedin.com/in/"]` — the anchor wrapping the avatar figure
+    - Avatar: `img[alt*="profile picture"]` inside that anchor's `<figure>`
+    - Name: first `<p>` inside the second `a[href*="linkedin.com/in/"]` anchor (the name link)
+  - [x] Each card is scoped to `[data-testid="lazy-column"] > div` to avoid selecting unrelated links
+  - [x] LinkedIn URL normalised with shared `normaliseLinkedinUrl()` from `shared/utils/`
+  - [x] Auto-scroll loop: scrolls `#workspace` container to bottom, waits 3s, repeats — stops after 3 consecutive scrolls with no new cards
+  - [x] Each scraped connection is saved to Supabase immediately (not batched at the end) so progress is preserved if user closes the tab
+  - [x] Duplicate check: if `linkedinUrl` already exists in Supabase, that connection is skipped silently
+  - [x] `jobTitle` and `company` default to empty string for bulk-imported connections
+  - [x] **Progress state:** banner updates live with saved/skipped counters while running
+  - [x] Import runs asynchronously — user can leave the tab or switch tabs and it continues
+  - [x] **Completion state:** banner updates to "Done — X imported, Y skipped" with a [Close] button
+  - [x] Tested with a real LinkedIn connections list — scrolling, importing, and duplicate skipping all working
 
-- [ ] **Phase 12** — Edit connection info
-  - [ ] Edit button added to `CurrentProfileView` — visible when a connection is found in Supabase
-  - [ ] Clicking edit opens `EditConnectionForm` inline in the panel, replacing the connection detail view
-  - [ ] `EditConnectionForm` pre-fills all current connection fields: name, jobTitle, company, linkedinUrl, phone, email
-  - [ ] `linkedinUrl` field is read-only in the edit form — it is the unique key and should not be changed
-  - [ ] On save: calls `updateConnection` in `connectionRepo.ts` (write this function if it doesn't exist yet)
-  - [ ] `updateConnection` in Supabase uses an `update` query matched by `id`, and sets `updated_at` to `now()`
-  - [ ] On save success: returns to `CurrentProfileView` showing the updated connection info
-  - [ ] On cancel: returns to `CurrentProfileView` with no changes made
-  - [ ] Validation: name and jobTitle are required — show inline error if blank on save attempt
-  - [ ] `ConnectionCard` in the full connections list also gets an edit button (or edit accessible by clicking into a connection) so connections imported via bulk import can have their details filled in
-  - [ ] Tested: edit a connection, save, confirm updated info appears immediately in the panel
+- [x] **Phase 12** — Edit connection info
+  - [x] Edit button added to `CurrentProfileView` — visible when a connection is found in Supabase
+  - [x] Clicking edit opens `EditConnectionForm` inline in the panel, replacing the connection detail view
+  - [x] `EditConnectionForm` pre-fills all current connection fields: name, jobTitle, company, linkedinUrl, phone, email
+  - [x] `linkedinUrl` field is read-only in the edit form — it is the unique key and should not be changed
+  - [x] On save: calls `updateConnection` in `connectionRepo.ts`
+  - [x] `updateConnection` in Supabase uses an `update` query matched by `id`, and sets `updated_at` to `now()`
+  - [x] On save success: returns to `CurrentProfileView` showing the updated connection info
+  - [x] On cancel: returns to `CurrentProfileView` with no changes made
+  - [x] Validation: name and jobTitle are required — show inline error if blank on save attempt
+  - [x] Edit also accessible from the connections list detail view
+  - [x] Tested: edit a connection, save, confirm updated info and note both appear correctly in the panel
 
 ---
 
@@ -364,4 +373,5 @@ The developer will review the code, ask questions, and sign off before the next 
 - Job title and company scraping requires Experience section to be in the DOM — LinkedIn lazy-loads it on scroll. If the user hasn't scrolled to it before clicking "Add this person", those fields come back empty. Current fix: tip text below the button tells the user to scroll first. Better fix (Option 4): MutationObserver that waits for the Experience section to appear and updates the form fields once it does. Deferred.
 - Stale connection info not handled — if a saved connection updates their name, job title, or company on LinkedIn, the panel will continue showing the old saved data. No automatic sync or "refresh from LinkedIn" feature exists. Options to address: a manual "re-scrape" button in the panel, or a prompt when the scraped DOM data differs from what's saved. To be planned together.
 - MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.
+- Bulk import saves one connection at a time — 1,272 connections = 1,272 Supabase round trips. Switching to a single batched `insert` call would be significantly faster. Deferred because the current approach works correctly; live progress counter would need to be replaced with a spinner or removed entirely if batching is adopted.
 - Avatar URL expiry — LinkedIn CDN URLs for profile photos contain a token (`?e=...&t=...`) that expires after a period of time. A stored `avatarUrl` will eventually 404, causing the avatar to silently fall back to initials. Options to address: re-scrape and update `avatarUrl` on each visit to the profile, or use a proxy/cache layer. Deferred for MVP — fallback to initials is acceptable for now.

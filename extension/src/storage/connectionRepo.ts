@@ -52,6 +52,24 @@ const saveConnection = async (connection: Omit<Connection, 'id' | 'createdAt' | 
     return toConnection(data);
 };
 
+const updateConnection = async (id: string, updates: Partial<Omit<Connection, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Connection> => {
+    const { data, error } = await supabase
+        .from('connections')
+        .update({
+            name: updates.name,
+            job_title: updates.jobTitle,
+            company: updates.company,
+            phone: updates.phone,
+            email: updates.email,
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw error;
+    return toConnection(data);
+};
+
 const deleteConnection = async (id: string): Promise<void> => {
     const { error } = await supabase
         .from('connections')
@@ -60,4 +78,4 @@ const deleteConnection = async (id: string): Promise<void> => {
     if (error) throw error;
 };
 
-export { getAllConnections, getConnectionByLinkedinUrl, saveConnection, deleteConnection };
+export { getAllConnections, getConnectionByLinkedinUrl, saveConnection, updateConnection, deleteConnection };

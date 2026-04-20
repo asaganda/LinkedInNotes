@@ -11,6 +11,7 @@ interface CurrentProfileViewProps {
   savedConnection?: Connection;
   onAddConnection: (scraped: ScrapedProfileData) => void;
   scrapeProfileData: () => ScrapedProfileData;
+  onEdit: (connection: Connection) => void;
 }
 
 const s = {
@@ -35,17 +36,18 @@ const s = {
   error: { fontSize: '13px', color: '#ef4444', textAlign: 'center' as const, padding: '16px 0' },
 };
 
-const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData }: CurrentProfileViewProps) => {
+const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData, onEdit }: CurrentProfileViewProps) => {
   const [connection, setConnection] = useState<Connection | undefined>(savedConnection);
   const [note, setNote] = useState<Note | undefined>(undefined);
   const [loading, setLoading] = useState(!savedConnection);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If a freshly saved connection was passed in, use it directly — no Supabase lookup needed
+    // If a freshly saved connection was passed in, skip the connection lookup but still fetch the note
     if (savedConnection) {
       setConnection(savedConnection);
-      setLoading(false);
+      setLoading(true);
+      getNoteByConnectionId(savedConnection.id).then(setNote).finally(() => setLoading(false));
       return;
     }
 
@@ -110,10 +112,17 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
             </span>
           </div>
         )}
-        <div>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ ...s.name, margin: 0 }}>{connection.name}</p>
           <p style={{ ...s.meta, margin: '2px 0 0 0' }}>{connection.jobTitle}{connection.company ? ` · ${connection.company}` : ''}</p>
         </div>
+        <button
+          onClick={() => onEdit(connection)}
+          title="Edit connection"
+          style={{ background: 'none', border: '1px solid #d1d5db', borderRadius: '5px', cursor: 'pointer', fontSize: '11px', color: '#6b7280', padding: '3px 7px', fontFamily: 'sans-serif', flexShrink: 0 }}
+        >
+          Edit
+        </button>
       </div>
 
       <hr style={s.divider} />
