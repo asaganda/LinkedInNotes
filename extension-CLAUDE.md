@@ -238,7 +238,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 12 complete — ready for Phase 13
+**Currently working on:** Phase 13 complete — ready for Phase 14
 
 ### Build Checklist
 
@@ -360,6 +360,16 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] Validation: name and jobTitle are required — show inline error if blank on save attempt
   - [x] Edit also accessible from the connections list detail view
   - [x] Tested: edit a connection, save, confirm updated info and note both appear correctly in the panel
+
+- [x] **Phase 13** — Enrich bulk-imported connections from profile page
+  - [x] "Fill in details from page" button added to `CurrentProfileView` found state — visible only when all of these are true: connection exists, jobTitle is blank, company is blank, phone is blank, email is blank
+  - [x] Button only appears on profile pages (`linkedin.com/in/*`) — it is already only rendered by `CurrentProfileView` which only mounts on profile pages, so no extra URL check needed
+  - [x] Clicking the button calls `scrapeProfileData()` and opens `EditConnectionForm` with the existing connection merged with the scraped data: name and linkedinUrl kept from DB, jobTitle/company pre-filled from scrape
+  - [x] `EditConnectionForm` behaviour is unchanged — user can edit any field before saving, linkedinUrl remains read-only
+  - [x] On save: same `updateConnection` flow as Phase 12 — returns to `CurrentProfileView` with updated info
+  - [x] Button does not appear if any of jobTitle, company, phone, or email are already filled in — connection is considered sufficiently enriched
+  - [x] "Scroll down to Experience section first" tip shown below the button
+  - [x] Tested: navigate to a bulk-imported connection's LinkedIn profile, click "Fill in details from page", confirm fields pre-fill from DOM, save, confirm updated info appears in panel
 
 ---
 

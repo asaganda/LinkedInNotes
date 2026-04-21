@@ -12,6 +12,7 @@ interface CurrentProfileViewProps {
   onAddConnection: (scraped: ScrapedProfileData) => void;
   scrapeProfileData: () => ScrapedProfileData;
   onEdit: (connection: Connection) => void;
+  onEnrich: (connection: Connection, scraped: ScrapedProfileData) => void;
 }
 
 const s = {
@@ -36,7 +37,10 @@ const s = {
   error: { fontSize: '13px', color: '#ef4444', textAlign: 'center' as const, padding: '16px 0' },
 };
 
-const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData, onEdit }: CurrentProfileViewProps) => {
+const isUnenriched = (c: Connection) =>
+  !c.jobTitle.trim() && !c.company?.trim() && !c.phone?.trim() && !c.email?.trim();
+
+const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData, onEdit, onEnrich }: CurrentProfileViewProps) => {
   const [connection, setConnection] = useState<Connection | undefined>(savedConnection);
   const [note, setNote] = useState<Note | undefined>(undefined);
   const [loading, setLoading] = useState(!savedConnection);
@@ -124,6 +128,20 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
           Edit
         </button>
       </div>
+
+      {isUnenriched(connection) && (
+        <>
+          <button
+            onClick={() => onEnrich(connection, scrapeProfileData())}
+            style={{ width: '100%', padding: '8px', fontSize: '13px', fontWeight: 600, background: 'none', color: '#0a66c2', border: '1px solid #0a66c2', borderRadius: '8px', cursor: 'pointer', marginBottom: '6px' }}
+          >
+            Fill in details from page
+          </button>
+          <p style={{ fontSize: '12px', fontWeight: 700, color: '#6b7280', margin: '0 0 10px 0' }}>
+            Scroll down to Experience section first
+          </p>
+        </>
+      )}
 
       <hr style={s.divider} />
 
