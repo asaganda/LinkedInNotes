@@ -93,11 +93,11 @@ Defined in `../../shared/models/` and imported by both `webapp` and `extension`.
 type Connection = {
   id: string
   name: string
-  jobTitle: string
-  company?: string
+  jobTitle?: string       // Optional — Phase 14: UI fields commented out, reserved for future phase
+  company?: string        // Optional — Phase 14: UI fields commented out, reserved for future phase
   linkedinUrl: string
-  phone?: string
-  email?: string
+  phone?: string          // Reserved for future phase — UI fields commented out
+  email?: string          // Reserved for future phase — UI fields commented out
   avatarUrl?: string      // Added in Phase 10 — scraped from LinkedIn DOM
   createdAt: string
   updatedAt: string
@@ -125,7 +125,7 @@ See `schema.sql` at the repo root. Tables:
 **connections**
 - `id` uuid primary key default gen_random_uuid()
 - `name` text not null
-- `job_title` text not null
+- `job_title` text                ← made nullable in Phase 14 (ALTER TABLE migration)
 - `company` text
 - `linkedin_url` text not null unique
 - `phone` text
@@ -238,7 +238,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 13 complete — ready for Phase 14
+**Currently working on:** Phase 14 complete — ready for Phase 15
 
 ### Build Checklist
 
@@ -371,12 +371,24 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] "Scroll down to Experience section first" tip shown below the button
   - [x] Tested: navigate to a bulk-imported connection's LinkedIn profile, click "Fill in details from page", confirm fields pre-fill from DOM, save, confirm updated info appears in panel
 
+- [x] **Phase 14** — Simplify data model for mobile readiness
+  - [x] `jobTitle` made optional (`string?`) in `shared/models/connection.ts` — was previously required
+  - [x] `job_title` column made nullable in Supabase — migration run: `ALTER TABLE connections ALTER COLUMN job_title DROP NOT NULL`
+  - [x] `schema.sql` updated to reflect nullable `job_title`
+  - [x] **`AddConnectionForm`** — jobTitle, company, phone, email fields commented out. Only name (required) and linkedinUrl (read-only) remain active. `saveConnection` call updated to omit those fields.
+  - [x] **`EditConnectionForm`** — same fields commented out. Only name field active for editing.
+  - [x] **`CurrentProfileView`** — jobTitle/company meta line commented out. `isUnenriched` helper and "Fill in details from page" button commented out. `onEnrich` prop commented out.
+  - [x] **`ConnectionsList`** — jobTitle/company detail meta line commented out. Search filter updated to use `c.jobTitle ?? ''` (safe for undefined).
+  - [x] **`App.tsx`** — `handleEnrich` and `onEnrich={handleEnrich}` prop commented out.
+  - [x] All commented-out code marked "reserved for future phase" — easy to restore when building the detail fields phase
+  - [x] **Why:** project is expanding to a React Native / Expo mobile app. On mobile, connections are added via the iOS share sheet (LinkedIn URL → parse name from HTML → user adds note). No DOM scraping for jobTitle/company on mobile. Name + linkedinUrl + note is the reliable core; detail fields are a future enhancement.
+
 ---
 
 ### Known Issues / Deferred
 - No auth — single user only, no row-level security in Supabase for MVP
 - No real-time sync across tabs
-- Error messages on name/jobTitle fields don't clear on typing (inherited from webapp — revisit later)
+- Error message on name field doesn't clear on typing in `EditConnectionForm` — revisit later
 - ConnectionsList re-fetches all connections on every mount — needs caching in App.tsx for performance
 - Client-side search loads the full connections list into memory — fine for MVP but won't scale. Should switch to Supabase-side filtering (ilike query) beyond a certain threshold
 - Phone and email scraping from LinkedIn DOM not implemented — phone/email are sometimes in a "Contact info" popup (not the main DOM) or in the About section. Inconsistent across profiles. Deferred until a reliable scraping approach is identified. For now, user fills these fields manually in the Add Connection form.
@@ -385,3 +397,4 @@ The developer will review the code, ask questions, and sign off before the next 
 - MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.
 - Bulk import saves one connection at a time — 1,272 connections = 1,272 Supabase round trips. Switching to a single batched `insert` call would be significantly faster. Deferred because the current approach works correctly; live progress counter would need to be replaced with a spinner or removed entirely if batching is adopted.
 - Avatar URL expiry — LinkedIn CDN URLs for profile photos contain a token (`?e=...&t=...`) that expires after a period of time. A stored `avatarUrl` will eventually 404, causing the avatar to silently fall back to initials. Options to address: re-scrape and update `avatarUrl` on each visit to the profile, or use a proxy/cache layer. Deferred for MVP — fallback to initials is acceptable for now.
+- Job title and company scraping (multi-role and school layouts) — deprioritized. `scrapeProfileData` has partial fixes (school selector, logo anchor skip) but `hasMultipleRoles` detection via `closest('div')` is unreliable. Moot for now since jobTitle/company fields are commented out of the UI (Phase 14). Revisit when those fields are restored.

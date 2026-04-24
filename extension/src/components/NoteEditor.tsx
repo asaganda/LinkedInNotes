@@ -13,7 +13,7 @@ const s = {
     width: '100%',
     minHeight: '80px',
     padding: '8px',
-    fontSize: '13px',
+    fontSize: '18px',
     border: '1px solid #d1d5db',
     borderRadius: '6px',
     resize: 'vertical' as const,
@@ -48,7 +48,7 @@ const s = {
     cursor: 'pointer',
   },
   noteBody: {
-    fontSize: '13px',
+    fontSize: '18px',
     color: '#374151',
     lineHeight: 1.5,
     margin: 0,

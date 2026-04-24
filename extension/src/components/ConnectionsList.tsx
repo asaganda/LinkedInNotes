@@ -89,7 +89,7 @@ const ConnectionsList = ({ onClose }: ConnectionsListProps) => {
 
   const filtered = connections.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.jobTitle.toLowerCase().includes(search.toLowerCase()) ||
+    (c.jobTitle ?? '').toLowerCase().includes(search.toLowerCase()) ||
     (c.company ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
@@ -131,9 +131,7 @@ const ConnectionsList = ({ onClose }: ConnectionsListProps) => {
           </button>
         </div>
         <div style={s.detailBody}>
-          <p style={s.detailMeta}>
-            {selected.jobTitle}{selected.company ? ` · ${selected.company}` : ''}
-          </p>
+          {/* <p style={s.detailMeta}>{selected.jobTitle}{selected.company ? ` · ${selected.company}` : ''}</p> */}{/* reserved for future phase */}
           <p style={s.sectionLabel}>Note</p>
           {noteLoading ? (
             <p style={{ fontSize: '13px', color: '#9ca3af' }}>Loading...</p>

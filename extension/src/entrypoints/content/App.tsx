@@ -36,14 +36,15 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
     setView('edit');
   };
 
-  const handleEnrich = (connection: Connection, scraped: ScrapedProfileData) => {
-    setConnectionToEdit({
-      ...connection,
-      jobTitle: scraped.jobTitle,
-      company: scraped.company || connection.company,
-    });
-    setView('edit');
-  };
+  // reserved for future phase
+  // const handleEnrich = (connection: Connection, scraped: ScrapedProfileData) => {
+  //   setConnectionToEdit({
+  //     ...connection,
+  //     jobTitle: scraped.jobTitle,
+  //     company: scraped.company || connection.company,
+  //   });
+  //   setView('edit');
+  // };
 
   const handleEditSaved = (updated: Connection) => {
     setSavedConnection(updated);
@@ -182,7 +183,7 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
               onAddConnection={handleAddConnection}
               scrapeProfileData={scrapeProfileData}
               onEdit={handleEdit}
-              onEnrich={handleEnrich}
+              // onEnrich={handleEnrich}  // reserved for future phase
             />
           )}
         </div>

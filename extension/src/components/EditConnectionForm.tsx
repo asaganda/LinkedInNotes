@@ -61,30 +61,24 @@ const s = {
 
 const EditConnectionForm = ({ connection, onSaved, onCancel }: EditConnectionFormProps) => {
   const [name, setName] = useState(connection.name);
-  const [jobTitle, setJobTitle] = useState(connection.jobTitle);
-  const [company, setCompany] = useState(connection.company ?? '');
-  const [phone, setPhone] = useState(connection.phone ?? '');
-  const [email, setEmail] = useState(connection.email ?? '');
+  // const [jobTitle, setJobTitle] = useState(connection.jobTitle ?? '');  // reserved for future phase
+  // const [company, setCompany] = useState(connection.company ?? '');     // reserved for future phase
+  // const [phone, setPhone] = useState(connection.phone ?? '');           // reserved for future phase
+  // const [email, setEmail] = useState(connection.email ?? '');           // reserved for future phase
   const [nameError, setNameError] = useState('');
-  const [jobTitleError, setJobTitleError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
-    let valid = true;
-    if (!name.trim()) { setNameError('Name is required'); valid = false; }
-    else setNameError('');
-    if (!jobTitle.trim()) { setJobTitleError('Job title is required'); valid = false; }
-    else setJobTitleError('');
-    if (!valid) return;
+    if (!name.trim()) { setNameError('Name is required'); return; }
 
     setSaving(true);
     try {
       const updated = await updateConnection(connection.id, {
         name: name.trim(),
-        jobTitle: jobTitle.trim(),
-        company: company.trim() || undefined,
-        phone: phone.trim() || undefined,
-        email: email.trim() || undefined,
+        // jobTitle: jobTitle.trim() || undefined,  // reserved for future phase
+        // company: company.trim() || undefined,    // reserved for future phase
+        // phone: phone.trim() || undefined,        // reserved for future phase
+        // email: email.trim() || undefined,        // reserved for future phase
       });
       onSaved(updated);
     } finally {
@@ -104,30 +98,33 @@ const EditConnectionForm = ({ connection, onSaved, onCancel }: EditConnectionFor
         {nameError && <p style={s.error}>{nameError}</p>}
       </div>
 
-      <div style={s.fieldWrap}>
+      {/* Job Title — reserved for future phase */}
+      {/* <div style={s.fieldWrap}>
         <label style={s.label}>Job Title</label>
         <input
           style={s.input}
           value={jobTitle}
-          onChange={(e) => { setJobTitle(e.target.value); if (jobTitleError) setJobTitleError(''); }}
+          onChange={(e) => { setJobTitle(e.target.value); }}
         />
-        {jobTitleError && <p style={s.error}>{jobTitleError}</p>}
-      </div>
+      </div> */}
 
-      <div style={s.fieldWrap}>
+      {/* Company — reserved for future phase */}
+      {/* <div style={s.fieldWrap}>
         <label style={s.label}>Company</label>
         <input style={s.input} value={company} onChange={(e) => setCompany(e.target.value)} />
-      </div>
+      </div> */}
 
-      <div style={s.fieldWrap}>
+      {/* Phone — reserved for future phase */}
+      {/* <div style={s.fieldWrap}>
         <label style={s.label}>Phone</label>
         <input style={s.input} value={phone} onChange={(e) => setPhone(e.target.value)} />
-      </div>
+      </div> */}
 
-      <div style={s.fieldWrap}>
+      {/* Email — reserved for future phase */}
+      {/* <div style={s.fieldWrap}>
         <label style={s.label}>Email</label>
         <input style={s.input} value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
+      </div> */}
 
       <div style={s.fieldWrap}>
         <label style={s.label}>LinkedIn URL</label>

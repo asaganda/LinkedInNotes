@@ -26,14 +26,39 @@ export const scrapeProfileData = (): ScrapedProfileData => {
   // share the same DOM structure, so we anchor to the stable componentkey attribute
   const experienceSection = document.querySelector('[componentkey*="ExperienceTopLevelSection"]');
 
-  // Job title — first <p> inside the company anchor within the Experience section
-  const jobTitle =
-    experienceSection?.querySelector('a[href*="linkedin.com/company/"] p')?.textContent?.trim() ?? '';
+  // Two layouts exist depending on whether the person has multiple roles at the same company:
+  //
+  // Single-role layout: company anchor contains [jobTitle, companyName] as consecutive <p> elements
+  //
+  // Multi-role layout: company anchor contains [companyName, "Full-time · duration"] at the top level,
+  // followed by a <ul> of individual roles — each <li> anchor contains [jobTitle, dateRange].
+  // Detected by the presence of a <ul> sibling after the first company anchor.
+  // Matches both company and school employer links.
+  // The first anchor is always a logo-only link with no <p> elements — skip it and use
+  // the first anchor that actually contains text <p> elements as the top-level org anchor.
+  const orgSelector = 'a[href*="linkedin.com/company/"], a[href*="linkedin.com/school/"]';
+  const allOrgAnchors = [...(experienceSection?.querySelectorAll(orgSelector) ?? [])];
+  const firstOrgAnchor = allOrgAnchors.find((a) => a.querySelector('p')) ?? null;
+  const hasMultipleRoles = !!firstOrgAnchor?.closest('div')?.querySelector('ul');
 
-  // Company — second <p> in that same anchor, text before " ·" strips employment type (e.g. "· Full-time")
-  const rawCompany =
-    experienceSection?.querySelectorAll('a[href*="linkedin.com/company/"] p')[1]?.textContent?.trim() ?? '';
-  const company = rawCompany.split(' ·')[0].trim();
+  let jobTitle = '';
+  let company = '';
+
+  if (hasMultipleRoles) {
+    // Org name is the first <p> in the top-level org anchor
+    company = firstOrgAnchor?.querySelector('p')?.textContent?.trim() ?? '';
+    // Job title is the first <p> in the first <li>'s anchor (most recent role)
+    jobTitle = firstOrgAnchor?.closest('div')
+      ?.querySelector(`ul li ${orgSelector}`)
+      ?.querySelector('p')
+      ?.textContent?.trim() ?? '';
+  } else {
+    // Single-role: first <p> is job title, second <p> is "OrgName · employment type"
+    jobTitle = firstOrgAnchor?.querySelector('p')?.textContent?.trim() ?? '';
+    const rawCompany =
+      firstOrgAnchor?.querySelectorAll('p')[1]?.textContent?.trim() ?? '';
+    company = rawCompany.split(' ·')[0].trim();
+  }
 
   // Profile photo — the top-card photo container has a stable aria-label="Profile photo"
   const avatarUrl =
@@ -89,6 +114,7 @@ export default defineContentScript({
     let activeUi = ui;
 
     const observer = new MutationObserver(() => {
+      if (ctx.isInvalid) return;
       const newUrl = normaliseLinkedinUrl(window.location.href);
       if (newUrl !== currentUrl && isProfileUrl(window.location.href)) {
         currentUrl = newUrl;
@@ -104,6 +130,7 @@ export default defineContentScript({
             return root;
           },
         }).then((newUi) => {
+          if (ctx.isInvalid) return;
           activeUi = newUi;
           newUi.mount();
         });

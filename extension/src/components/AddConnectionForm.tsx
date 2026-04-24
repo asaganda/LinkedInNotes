@@ -57,23 +57,20 @@ const s = {
 
 const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddConnectionFormProps) => {
   const [name, setName] = useState(scrapedData?.name ?? '');
-  const [jobTitle, setJobTitle] = useState(scrapedData?.jobTitle ?? '');
-  const [company, setCompany] = useState(scrapedData?.company ?? '');
+  // const [jobTitle, setJobTitle] = useState(scrapedData?.jobTitle ?? '');  // reserved for future phase
+  // const [company, setCompany] = useState(scrapedData?.company ?? '');     // reserved for future phase
   const avatarUrl = scrapedData?.avatarUrl ?? '';
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [errors, setErrors] = useState({ name: '', jobTitle: '' });
+  // const [phone, setPhone] = useState('');   // reserved for future phase
+  // const [email, setEmail] = useState('');   // reserved for future phase
+  const [nameError, setNameError] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors = { name: '', jobTitle: '' };
-    if (!name.trim()) newErrors.name = "Name is required";
-    if (!jobTitle.trim()) newErrors.jobTitle = "Job title is required";
-    if (newErrors.name || newErrors.jobTitle) {
-      setErrors(newErrors);
+    if (!name.trim()) {
+      setNameError('Name is required');
       return;
     }
 
@@ -82,12 +79,12 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
     try {
       const saved = await saveConnection({
         name: name.trim(),
-        jobTitle: jobTitle.trim(),
         linkedinUrl,
-        company: company.trim() || undefined,
-        phone: phone.trim() || undefined,
-        email: email.trim() || undefined,
         avatarUrl: avatarUrl || undefined,
+        // jobTitle: jobTitle.trim() || undefined,  // reserved for future phase
+        // company: company.trim() || undefined,    // reserved for future phase
+        // phone: phone.trim() || undefined,        // reserved for future phase
+        // email: email.trim() || undefined,        // reserved for future phase
       });
       onSaved(saved);
     } catch {
@@ -107,15 +104,16 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
           <input
             style={s.input}
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { setName(e.target.value); setNameError(''); }}
             placeholder="Jane Smith"
             disabled={loading}
           />
-          {errors.name && <p style={s.errorText}>{errors.name}</p>}
+          {nameError && <p style={s.errorText}>{nameError}</p>}
         </div>
 
-        <div style={s.field}>
-          <label style={s.label}>Job Title *</label>
+        {/* Job Title — reserved for future phase */}
+        {/* <div style={s.field}>
+          <label style={s.label}>Job Title</label>
           <input
             style={s.input}
             value={jobTitle}
@@ -123,8 +121,7 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
             placeholder="Software Engineer"
             disabled={loading}
           />
-          {errors.jobTitle && <p style={s.errorText}>{errors.jobTitle}</p>}
-        </div>
+        </div> */}
 
         <div style={s.field}>
           <label style={s.label}>LinkedIn URL</label>
@@ -135,7 +132,8 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
           />
         </div>
 
-        <div style={s.field}>
+        {/* Company — reserved for future phase */}
+        {/* <div style={s.field}>
           <label style={s.label}>Company</label>
           <input
             style={s.input}
@@ -144,9 +142,10 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
             placeholder="Google"
             disabled={loading}
           />
-        </div>
+        </div> */}
 
-        <div style={s.field}>
+        {/* Phone — reserved for future phase */}
+        {/* <div style={s.field}>
           <label style={s.label}>Phone</label>
           <input
             style={s.input}
@@ -155,9 +154,10 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
             placeholder="555-123-4567"
             disabled={loading}
           />
-        </div>
+        </div> */}
 
-        <div style={s.field}>
+        {/* Email — reserved for future phase */}
+        {/* <div style={s.field}>
           <label style={s.label}>Email</label>
           <input
             style={s.input}
@@ -166,7 +166,7 @@ const AddConnectionForm = ({ linkedinUrl, scrapedData, onSaved, onCancel }: AddC
             placeholder="jane@example.com"
             disabled={loading}
           />
-        </div>
+        </div> */}
 
         {submitError && <p style={s.submitError}>{submitError}</p>}
 

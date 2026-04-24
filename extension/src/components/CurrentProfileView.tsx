@@ -12,7 +12,7 @@ interface CurrentProfileViewProps {
   onAddConnection: (scraped: ScrapedProfileData) => void;
   scrapeProfileData: () => ScrapedProfileData;
   onEdit: (connection: Connection) => void;
-  onEnrich: (connection: Connection, scraped: ScrapedProfileData) => void;
+  // onEnrich: (connection: Connection, scraped: ScrapedProfileData) => void;  // reserved for future phase
 }
 
 const s = {
@@ -21,7 +21,7 @@ const s = {
   name: { fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 },
   meta: { fontSize: '12px', color: '#6b7280', margin: '2px 0 0 0' },
   divider: { border: 'none', borderTop: '1px solid #e5e7eb', margin: '12px 0' },
-  sectionLabel: { fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: '8px' },
+  sectionLabel: { fontSize: '11px', fontWeight: 600, color: 'black', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: '8px' },
   addBtn: {
     width: '100%',
     padding: '10px',
@@ -37,10 +37,11 @@ const s = {
   error: { fontSize: '13px', color: '#ef4444', textAlign: 'center' as const, padding: '16px 0' },
 };
 
-const isUnenriched = (c: Connection) =>
-  !c.jobTitle.trim() && !c.company?.trim() && !c.phone?.trim() && !c.email?.trim();
+// reserved for future phase — shows "Fill in details from page" when all detail fields are blank
+// const isUnenriched = (c: Connection) =>
+//   !c.jobTitle?.trim() && !c.company?.trim() && !c.phone?.trim() && !c.email?.trim();
 
-const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData, onEdit, onEnrich }: CurrentProfileViewProps) => {
+const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scrapeProfileData, onEdit /*, onEnrich */ }: CurrentProfileViewProps) => {
   const [connection, setConnection] = useState<Connection | undefined>(savedConnection);
   const [note, setNote] = useState<Note | undefined>(undefined);
   const [loading, setLoading] = useState(!savedConnection);
@@ -92,9 +93,7 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
         <button style={s.addBtn} onClick={() => onAddConnection(scrapeProfileData())}>
           + Add this person
         </button>
-        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginTop: '10px' }}>
-          Tip: scroll down to the Experience section first to auto-fill job title and company.
-        </p>
+        {/* Tip: scroll down to the Experience section first to auto-fill job title and company. — reserved for future phase */}
       </div>
     );
   }
@@ -118,7 +117,7 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ ...s.name, margin: 0 }}>{connection.name}</p>
-          <p style={{ ...s.meta, margin: '2px 0 0 0' }}>{connection.jobTitle}{connection.company ? ` · ${connection.company}` : ''}</p>
+          {/* <p style={{ ...s.meta, margin: '2px 0 0 0' }}>{connection.jobTitle}{connection.company ? ` · ${connection.company}` : ''}</p> */}{/* reserved for future phase */}
         </div>
         <button
           onClick={() => onEdit(connection)}
@@ -129,7 +128,8 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
         </button>
       </div>
 
-      {isUnenriched(connection) && (
+      {/* Fill in details from page — reserved for future phase */}
+      {/* {isUnenriched(connection) && (
         <>
           <button
             onClick={() => onEnrich(connection, scrapeProfileData())}
@@ -141,7 +141,7 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
             Scroll down to Experience section first
           </p>
         </>
-      )}
+      )} */}
 
       <hr style={s.divider} />
 

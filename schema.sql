@@ -4,7 +4,7 @@
 create table connections (
   id            uuid primary key default gen_random_uuid(),
   name          text not null,
-  job_title     text not null,
+  job_title     text,
   company       text,
   linkedin_url  text not null unique,
   phone         text,
