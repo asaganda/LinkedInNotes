@@ -238,7 +238,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 14 complete — ready for Phase 15
+**Currently working on:** Phase 15 complete — magic link auth, session persistence, user_id + RLS migration all done and tested
 
 ### Build Checklist
 
@@ -383,18 +383,61 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] All commented-out code marked "reserved for future phase" — easy to restore when building the detail fields phase
   - [x] **Why:** project is expanding to a React Native / Expo mobile app. On mobile, connections are added via the iOS share sheet (LinkedIn URL → parse name from HTML → user adds note). No DOM scraping for jobTitle/company on mobile. Name + linkedinUrl + note is the reliable core; detail fields are a future enhancement.
 
+- [x] **Phase 15** — Authentication + multi-user support
+  - [x] Choose auth method — magic link (simplest, no password to manage) or email/password
+  - [x] Enable Supabase Auth in the Supabase dashboard
+  - [x] Build sign-in UI inside the extension panel — shown when no active session exists, replaces the main panel content
+  - [x] On successful sign-in: store the session and render the normal panel UI
+  - [x] Add `user_id uuid references auth.users(id)` column to both `connections` and `notes` tables
+  - [x] Migration: backfill existing rows with the current single user's `auth.uid()` before enabling RLS
+  - [x] Enable Row Level Security (RLS) on `connections` and `notes` — policies so each user can only read/write rows where `user_id = auth.uid()`
+  - [x] Update `connectionRepo.ts` and `noteRepo.ts` — inserts now include `user_id: user?.id`
+  - [x] Handle session persistence in the extension context — `chrome.storage.local` adapter + `persistSession: true` + `autoRefreshToken: true`
+  - [x] Revert `persistSession: false` in `supabaseClient.ts` — reverted, session persistence is now on
+  - [x] Handle sign-out — sign-out button in panel header, clears session, returns to sign-in UI
+  - [x] Handle expired/invalid sessions gracefully — if a Supabase call returns a 401, redirect to sign-in UI rather than showing an error
+  - [x] Update `schema.sql` to reflect `user_id` column and RLS policies
+  - [x] **Why:** required before publishing to the Chrome Web Store with real users. Without auth and RLS, any user who reverse-engineers the anon key can read or write the entire database.
+
 ---
+### Things to do before publishing
+Based on everything we've covered, here's the full list:
+
+Code / build
+
+ Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment before running the production build — these must be present at build time or the extension won't connect to Supabase
+ Run npm run build inside extension/ and confirm a .zip is produced in .output/
+ Verify the .env file is in .gitignore and not committed anywhere
+Store listing assets (you create these outside the codebase)
+
+ 128×128 extension icon (PNG) — required
+ At least one 1280×800 or 640×400 screenshot of the extension in action — required
+ Short description (132 characters max) for the store listing
+ Long description — you can adapt the README intro
+Chrome Web Store Developer Dashboard
+
+ Pay the one-time $5 registration fee
+ Upload the .zip
+ Paste the GitHub README privacy policy URL in the privacy policy field (e.g. https://github.com/yourusername/repo#privacy-policy)
+ Check the "handles user data" checkbox and describe what's collected (name, LinkedIn URL, photo URL, notes)
+ Set visibility to Unlisted (recommended for a personal tool — only people with the link can install it)
+ Fill in the "single purpose" field — something like: "Save and view private notes about LinkedIn connections directly on their profile pages"
+ Justify the linkedin.com host permission when prompted — "The extension injects a notes panel into LinkedIn profile pages and reads profile data visible on the page"
+Things to be mindful of
+
+Your Supabase anon key will be visible in the built JS — this is expected and fine for anon keys. Auth and RLS are now in place (Phase 15), so users can only access their own data.
+LinkedIn occasionally changes their DOM structure, which can break name/avatar scraping silently. Worth testing after any major LinkedIn UI update
+Profile photo URLs from LinkedIn CDN expire over time (noted in your known issues) — avatars will silently fall back to initials eventually
+Google's review can take a few hours to a few days — plan accordingly if you have a target date
 
 ### Known Issues / Deferred
-- No auth — single user only, no row-level security in Supabase for MVP
+- ~~No auth~~ — Phase 15 complete. Magic link auth + RLS implemented and tested.
 - No real-time sync across tabs
 - Error message on name field doesn't clear on typing in `EditConnectionForm` — revisit later
 - ConnectionsList re-fetches all connections on every mount — needs caching in App.tsx for performance
 - Client-side search loads the full connections list into memory — fine for MVP but won't scale. Should switch to Supabase-side filtering (ilike query) beyond a certain threshold
-- Phone and email scraping from LinkedIn DOM not implemented — phone/email are sometimes in a "Contact info" popup (not the main DOM) or in the About section. Inconsistent across profiles. Deferred until a reliable scraping approach is identified. For now, user fills these fields manually in the Add Connection form.
-- Job title and company scraping requires Experience section to be in the DOM — LinkedIn lazy-loads it on scroll. If the user hasn't scrolled to it before clicking "Add this person", those fields come back empty. Current fix: tip text below the button tells the user to scroll first. Better fix (Option 4): MutationObserver that waits for the Experience section to appear and updates the form fields once it does. Deferred.
 - Stale connection info not handled — if a saved connection updates their name, job title, or company on LinkedIn, the panel will continue showing the old saved data. No automatic sync or "refresh from LinkedIn" feature exists. Options to address: a manual "re-scrape" button in the panel, or a prompt when the scraped DOM data differs from what's saved. To be planned together.
 - MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.
-- Bulk import saves one connection at a time — 1,272 connections = 1,272 Supabase round trips. Switching to a single batched `insert` call would be significantly faster. Deferred because the current approach works correctly; live progress counter would need to be replaced with a spinner or removed entirely if batching is adopted.
+<!-- - Bulk import saves one connection at a time — 1,272 connections = 1,272 Supabase round trips. Switching to a single batched `insert` call would be significantly faster. Deferred because the current approach works correctly; live progress counter would need to be replaced with a spinner or removed entirely if batching is adopted. -->
 - Avatar URL expiry — LinkedIn CDN URLs for profile photos contain a token (`?e=...&t=...`) that expires after a period of time. A stored `avatarUrl` will eventually 404, causing the avatar to silently fall back to initials. Options to address: re-scrape and update `avatarUrl` on each visit to the profile, or use a proxy/cache layer. Deferred for MVP — fallback to initials is acceptable for now.
 - Job title and company scraping (multi-role and school layouts) — deprioritized. `scrapeProfileData` has partial fixes (school selector, logo anchor skip) but `hasMultipleRoles` detection via `closest('div')` is unreliable. Moot for now since jobTitle/company fields are commented out of the UI (Phase 14). Revisit when those fields are restored.

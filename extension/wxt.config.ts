@@ -9,5 +9,6 @@ export default defineConfig({
     description: 'View and manage notes about your LinkedIn connections directly on LinkedIn.',
     version: '1.0.0',
     permissions: ['activeTab', 'storage', 'tabs'],
+    host_permissions: ['https://*/*'],
   },
 });

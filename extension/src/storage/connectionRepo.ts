@@ -35,9 +35,11 @@ const getConnectionByLinkedinUrl = async (linkedinUrl: string): Promise<Connecti
 };
 
 const saveConnection = async (connection: Omit<Connection, 'id' | 'createdAt' | 'updatedAt'>): Promise<Connection> => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
         .from('connections')
         .insert({
+            user_id: user?.id,
             name: connection.name,
             job_title: connection.jobTitle,
             company: connection.company,

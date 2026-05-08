@@ -1,6 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import type { Connection } from '../../../../shared/models/connection';
 import type { ScrapedProfileData } from './index';
+import { supabase } from '../../lib/supabaseClient';
+import SignInView from '../../components/SignInView';
 import CurrentProfileView from '../../components/CurrentProfileView';
 import AddConnectionForm from '../../components/AddConnectionForm';
 import EditConnectionForm from '../../components/EditConnectionForm';
@@ -14,11 +17,25 @@ interface AppProps {
 type PanelView = 'profile' | 'add' | 'edit' | 'list';
 
 const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<PanelView>('profile');
   const [savedConnection, setSavedConnection] = useState<Connection | undefined>(undefined);
   const [connectionToEdit, setConnectionToEdit] = useState<Connection | undefined>(undefined);
   const scrapedDataRef = useRef<ScrapedProfileData | undefined>(undefined);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setSessionLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      setSessionLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSaved = (connection: Connection) => {
     setSavedConnection(connection);
@@ -88,6 +105,25 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
               {headerTitle}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {/* Sign out — only shown when a session exists */}
+              {session && (
+                <button
+                  onClick={() => supabase.auth.signOut()}
+                  title="Sign out"
+                  style={{
+                    background: 'none',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    color: '#6b7280',
+                    padding: '3px 7px',
+                    fontFamily: 'sans-serif',
+                  }}
+                >
+                  Sign out
+                </button>
+              )}
               {/* Import All — redirects to connections list page to trigger bulk import */}
               <button
                 onClick={() => { window.location.href = 'https://www.linkedin.com/mynetwork/invite-connect/connections/'; }}
@@ -161,7 +197,13 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
           </div>
 
           {/* Panel body */}
-          {view === 'list' ? (
+          {sessionLoading ? (
+            <div style={{ padding: '32px', textAlign: 'center', fontSize: '13px', color: '#6b7280', fontFamily: 'sans-serif' }}>
+              Loading...
+            </div>
+          ) : !session ? (
+            <SignInView />
+          ) : view === 'list' ? (
             <ConnectionsList onClose={() => setView('profile')} />
           ) : view === 'add' ? (
             <AddConnectionForm

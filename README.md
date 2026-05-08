@@ -17,6 +17,10 @@ Anyone who uses LinkedIn seriously: recruiters, founders, sales professionals, j
 - **Bulk import** — import your existing LinkedIn connections in one click, with auto-scroll to capture your full list
 - **SPA-aware** — the panel updates automatically as you navigate between profiles without a page reload
 
+## Getting started
+
+LinkedIn Notes uses **magic link sign-in** — there's no password to create or remember. When you open the extension for the first time, enter your email address and you'll receive a one-click sign-in link in your inbox. Click it, the tab closes automatically, and you're signed in. Your session stays active so you won't need to sign in again unless you explicitly sign out.
+
 ## Tech stack
 
 Built with [WXT](https://wxt.dev/) (Chrome extension framework), React, TypeScript, and [Supabase](https://supabase.com/) as the backend database. Part of a broader multi-platform system that also includes a web app and a planned React Native mobile app, all sharing the same Supabase backend.

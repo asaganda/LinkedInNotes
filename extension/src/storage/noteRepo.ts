@@ -21,9 +21,11 @@ const getNoteByConnectionId = async (connectionId: string): Promise<Note | undef
 };
 
 const saveNote = async (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
         .from('notes')
         .insert({
+            user_id: user?.id,
             connection_id: note.connectionId,
             body: note.body,
         })
