@@ -63,6 +63,7 @@ const updateConnection = async (id: string, updates: Partial<Omit<Connection, 'i
             company: updates.company,
             phone: updates.phone,
             email: updates.email,
+            avatar_url: updates.avatarUrl,
             updated_at: new Date().toISOString(),
         })
         .eq('id', id)

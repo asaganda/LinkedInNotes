@@ -5,8 +5,8 @@ export default defineConfig({
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react'],
   manifest: {
-    name: 'LinkedIn Notes',
-    description: 'View and manage notes about your LinkedIn connections directly on LinkedIn.',
+    name: 'Conntext',
+    description: 'Private notes on any LinkedIn profile. See your context the moment you land on a page — no tab switching, no friction.',
     version: '1.0.0',
     permissions: ['activeTab', 'storage', 'tabs'],
     host_permissions: ['https://*/*'],

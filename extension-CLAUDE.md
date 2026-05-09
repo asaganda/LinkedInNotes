@@ -403,11 +403,6 @@ The developer will review the code, ask questions, and sign off before the next 
 ### Things to do before publishing
 Based on everything we've covered, here's the full list:
 
-Code / build
-
- Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment before running the production build — these must be present at build time or the extension won't connect to Supabase
- Run npm run build inside extension/ and confirm a .zip is produced in .output/
- Verify the .env file is in .gitignore and not committed anywhere
 Store listing assets (you create these outside the codebase)
 
  128×128 extension icon (PNG) — required

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Connection } from '../../../shared/models/connection';
 import type { Note } from '../../../shared/models/note';
 import type { ScrapedProfileData } from '../entrypoints/content/index';
-import { getConnectionByLinkedinUrl } from '../storage/connectionRepo';
+import { getConnectionByLinkedinUrl, updateConnection } from '../storage/connectionRepo';
 import { getNoteByConnectionId } from '../storage/noteRepo';
 import NoteEditor from './NoteEditor';
 
@@ -66,6 +66,12 @@ const CurrentProfileView = ({ linkedinUrl, savedConnection, onAddConnection, scr
         if (conn) {
           const n = await getNoteByConnectionId(conn.id);
           setNote(n);
+          const freshAvatar = scrapeProfileData().avatarUrl;
+          if (freshAvatar && freshAvatar !== conn.avatarUrl) {
+            updateConnection(conn.id, { avatarUrl: freshAvatar })
+              .then((updated) => setConnection(updated))
+              .catch(() => {});
+          }
         }
       } catch {
         setError('Could not load data. Check your connection.');
