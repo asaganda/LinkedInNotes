@@ -8,6 +8,9 @@ import normaliseLinkedinUrl from '../../../../shared/utils/normaliseLinkedinUrl'
 const isProfileUrl = (url: string): boolean =>
   /https:\/\/www\.linkedin\.com\/in\/[^/?#]+/.test(url);
 
+const isConnectionsPage = (url: string): boolean =>
+  url.includes('/mynetwork/invite-connect/connections');
+
 export type ScrapedProfileData = {
   name: string;
   jobTitle: string;
@@ -68,58 +71,42 @@ export const scrapeProfileData = (): ScrapedProfileData => {
 };
 
 export default defineContentScript({
-  matches: [
-    'https://www.linkedin.com/in/*',
-    'https://www.linkedin.com/mynetwork/invite-connect/connections/*',
-  ],
+  matches: ['https://www.linkedin.com/*'],
   cssInjectionMode: 'ui',
 
   async main(ctx) {
-    // Connections list page — inject ImportBanner and stop
-    if (window.location.href.includes('/mynetwork/invite-connect/connections')) {
-      await createShadowRootUi(ctx, {
-        name: 'linkedin-notes-import-banner',
-        position: 'inline',
-        anchor: 'body',
-        append: 'last',
-        onMount(container) {
-          const root = ReactDOM.createRoot(container);
-          root.render(React.createElement(ImportBanner));
-          return root;
-        },
-      }).then((ui) => ui.mount());
-      return;
-    }
+    let currentUrl = '';
+    let activeUi: { remove: () => void } | null = null;
 
-    let currentUrl = normaliseLinkedinUrl(window.location.href);
-
-    const ui = await createShadowRootUi(ctx, {
-      name: 'linkedin-notes-panel',
-      position: 'inline',
-      anchor: 'body',
-      append: 'last',
-      onMount(container) {
-        const root = ReactDOM.createRoot(container);
-        root.render(React.createElement(App, { linkedinUrl: currentUrl, scrapeProfileData }));
-        return root;
-      },
-    });
-
-    ui.mount();
-
-    // LinkedIn is a SPA — navigating between profiles does not trigger a full page
-    // reload, so the content script's main() only runs once. A MutationObserver on
-    // document.body detects DOM mutations that accompany each client-side navigation
-    // and re-renders the App with the new URL when the profile changes.
-    let activeUi = ui;
-
-    const observer = new MutationObserver(() => {
+    const handleNavigation = async () => {
       if (ctx.isInvalid) return;
-      const newUrl = normaliseLinkedinUrl(window.location.href);
-      if (newUrl !== currentUrl && isProfileUrl(window.location.href)) {
-        currentUrl = newUrl;
-        activeUi.remove();
-        createShadowRootUi(ctx, {
+
+      const href = window.location.href;
+      const normalised = normaliseLinkedinUrl(href);
+
+      if (normalised === currentUrl) return;
+      currentUrl = normalised;
+
+      activeUi?.remove();
+      activeUi = null;
+
+      if (isConnectionsPage(href)) {
+        const ui = await createShadowRootUi(ctx, {
+          name: 'linkedin-notes-import-banner',
+          position: 'inline',
+          anchor: 'body',
+          append: 'last',
+          onMount(container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(ImportBanner));
+            return root;
+          },
+        });
+        if (ctx.isInvalid) return;
+        ui.mount();
+        activeUi = ui;
+      } else if (isProfileUrl(href)) {
+        const ui = await createShadowRootUi(ctx, {
           name: 'linkedin-notes-panel',
           position: 'inline',
           anchor: 'body',
@@ -129,16 +116,33 @@ export default defineContentScript({
             root.render(React.createElement(App, { linkedinUrl: currentUrl, scrapeProfileData }));
             return root;
           },
-        }).then((newUi) => {
-          if (ctx.isInvalid) return;
-          activeUi = newUi;
-          newUi.mount();
         });
+        if (ctx.isInvalid) return;
+        ui.mount();
+        activeUi = ui;
       }
-    });
+      // Any other LinkedIn page — nothing mounted
+    };
 
+    window.addEventListener('popstate', handleNavigation);
+
+    // MutationObserver watches for DOM changes that accompany each SPA navigation.
+    // Debounced to collapse the burst of mutations per navigation into a single check.
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const observer = new MutationObserver(() => {
+      if (ctx.isInvalid) return;
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(handleNavigation, 150);
+    });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    ctx.onInvalidated(() => observer.disconnect());
+    handleNavigation();
+
+    ctx.onInvalidated(() => {
+      window.removeEventListener('popstate', handleNavigation);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      observer.disconnect();
+      activeUi?.remove();
+    });
   },
 });

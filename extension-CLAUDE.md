@@ -238,7 +238,7 @@ The developer will review the code, ask questions, and sign off before the next 
 
 > Update this section at the end of every phase.
 
-**Currently working on:** Phase 15 complete — magic link auth, session persistence, user_id + RLS migration all done and tested
+**Currently working on:** Phase 16 complete — SPA navigation fix, production build submitted to Chrome Web Store (v2)
 
 ### Build Checklist
 
@@ -399,6 +399,20 @@ The developer will review the code, ask questions, and sign off before the next 
   - [x] Update `schema.sql` to reflect `user_id` column and RLS policies
   - [x] **Why:** required before publishing to the Chrome Web Store with real users. Without auth and RLS, any user who reverse-engineers the anon key can read or write the entire database.
 
+- [x] **Phase 16** — SPA navigation fix
+  - [x] Content script `matches` widened from `['https://www.linkedin.com/in/*', ...]` to `['https://www.linkedin.com/*']` — `main()` now runs on every LinkedIn page, not just profile pages
+  - [x] `MutationObserver` restructured — now starts immediately on any LinkedIn page so it can detect navigation from the feed to a profile
+  - [x] `handleNavigation()` extracted as a shared function — called on initial load and on every debounced observer fire
+  - [x] `isConnectionsPage()` helper extracted — keeps URL-matching logic readable
+  - [x] `activeUi` tracked explicitly — old UI is torn down before new UI is mounted on every navigation, covering profile→feed→profile transitions
+  - [x] Debounce (150ms) on MutationObserver collapses LinkedIn's burst of DOM mutations per navigation into a single URL check
+  - [x] Tried `history.pushState` patching (most efficient approach) — blocked by two issues: content script isolated world prevents direct patching, and LinkedIn's CSP blocks inline script injection into the main world
+  - [x] `popstate` listener retained for browser back/forward button support
+  - [x] Full cleanup on `ctx.onInvalidated`: observer disconnected, debounce timer cleared, active UI removed
+  - [x] Verified: feed → profile shows panel, profile → feed hides panel, profile → profile updates panel, hard-reload on profile still works
+  - [x] Extension loaded from `.output/chrome-mv3-dev` during development; `npm run build` → `.output/chrome-mv3` for production zip
+  - [x] Production build submitted to Chrome Web Store (v2)
+
 ---
 ### Things to do before publishing
 Based on everything we've covered, here's the full list:
@@ -432,6 +446,6 @@ Google's review can take a few hours to a few days — plan accordingly if you h
 - ConnectionsList re-fetches all connections on every mount — needs caching in App.tsx for performance
 - Client-side search loads the full connections list into memory — fine for MVP but won't scale. Should switch to Supabase-side filtering (ilike query) beyond a certain threshold
 - Stale connection info not handled — if a saved connection updates their name, job title, or company on LinkedIn, the panel will continue showing the old saved data. No automatic sync or "refresh from LinkedIn" feature exists. Options to address: a manual "re-scrape" button in the panel, or a prompt when the scraped DOM data differs from what's saved. To be planned together.
-- MutationObserver debouncing not implemented — LinkedIn's SPA can trigger many DOM mutations during a single navigation; rapid-fire observer callbacks could cause multiple remounts to stack. A 300ms debounce on the observer callback would prevent this. Deferred pending testing to confirm if it's an actual problem in practice.
+- ~~Navigating from LinkedIn feed/homepage to a profile does not trigger the panel~~ — Fixed in Phase 16. Content script now runs on all LinkedIn pages; MutationObserver starts immediately and detects feed→profile navigation.
 <!-- - Bulk import saves one connection at a time — 1,272 connections = 1,272 Supabase round trips. Switching to a single batched `insert` call would be significantly faster. Deferred because the current approach works correctly; live progress counter would need to be replaced with a spinner or removed entirely if batching is adopted. -->
 - Job title and company scraping (multi-role and school layouts) — deprioritized. `scrapeProfileData` has partial fixes (school selector, logo anchor skip) but `hasMultipleRoles` detection via `closest('div')` is unreliable. Moot for now since jobTitle/company fields are commented out of the UI (Phase 14). Revisit when those fields are restored.
