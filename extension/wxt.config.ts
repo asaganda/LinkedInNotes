@@ -10,5 +10,6 @@ export default defineConfig({
     version: '1.1.0',
     permissions: ['storage', 'tabs'],
     host_permissions: ['https://www.linkedin.com/*', 'https://*.supabase.co/*'],
+    web_accessible_resources: [{ resources: ['icon/128.png'], matches: ['https://www.linkedin.com/*'] }],
   },
 });

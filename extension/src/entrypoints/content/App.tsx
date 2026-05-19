@@ -77,7 +77,7 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
   const headerTitle = view === 'add' ? 'Add Connection' : view === 'edit' ? 'Edit Connection' : 'LinkedIn Notes';
 
   return (
-    <div style={{ position: 'fixed', bottom: '80px', right: '20px', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', bottom: '70px', right: '20px', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
       {isOpen && (
         <div
           style={{
@@ -239,8 +239,8 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          background: '#0a66c2',
-          border: 'none',
+          background: 'transparent',
+          border: '1px solid #0f1b2d',
           cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
           display: 'flex',
@@ -249,16 +249,18 @@ const App = ({ linkedinUrl, scrapeProfileData }: AppProps) => {
           transition: 'background 0.2s',
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = '#004182';
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.08)';
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = '#0a66c2';
+          (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
         }}
         aria-label="Toggle LinkedIn Notes panel"
       >
-        <span style={{ color: 'white', fontWeight: 700, fontSize: '16px', fontFamily: 'sans-serif' }}>
-          N
-        </span>
+        <img
+          src={chrome.runtime.getURL('icon/128.png')}
+          alt="Conntext"
+          style={{ width: '28px', height: '28px', display: 'block', borderRadius: '6px' }}
+        />
       </button>
     </div>
   );
